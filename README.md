@@ -76,7 +76,11 @@ The key idea: the LLM never sees your raw data. It only sees the schema, generat
 import { ProxyClient, LocalAssistant } from 'localflow-core'
 
 const proxy = new ProxyClient('https://your-proxy.example.com')
-await proxy.connect('api-key', { key: userApiKey })
+
+// Connect using your CRM credentials — connector type depends on your setup:
+await proxy.connect('odoo', { url, db, username, password })  // Odoo
+await proxy.connect('public')                                  // anonymous / public session
+
 const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
 ```
 
