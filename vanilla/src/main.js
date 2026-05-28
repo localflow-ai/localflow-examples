@@ -62,7 +62,7 @@ if (savedKey) {
 
 // ── Assistant setup ───────────────────────────────────────────────────────────
 function initAssistant(key) {
-  const proxy = new LocalProxy({ adminToken: 'dev' })
+  const proxy = new LocalProxy()
   assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
   assistant.setLlmApiKey(key)
 }

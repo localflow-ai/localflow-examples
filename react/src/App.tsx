@@ -90,7 +90,7 @@ export default function App() {
 
   useEffect(() => {
     if (!geminiKey) return
-    const proxy = new LocalProxy({ adminToken: 'dev' })
+    const proxy = new LocalProxy()
     const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
     assistant.setLlmApiKey(geminiKey)
     assistantRef.current = assistant

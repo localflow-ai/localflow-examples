@@ -49,7 +49,7 @@ Open the URL shown in your terminal, enter your Gemini API key, load a CSV or Ex
 import { LocalProxy, LocalAssistant } from 'localflow-core'
 
 // No server needed — LocalProxy runs entirely in the browser
-const proxy = new LocalProxy({ adminToken: 'dev' })
+const proxy = new LocalProxy()
 const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
 
 // Your Gemini key — stays in the browser, never sent to any third party
