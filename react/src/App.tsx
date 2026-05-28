@@ -121,7 +121,7 @@ export default function App() {
       content: `Loaded <strong>${file.name}</strong> — ${rows.length} rows.`,
     }])
     // Auto-send initial overview
-    await doSend('Show me the data', assistantRef.current)
+    await doSend('Show the data', assistantRef.current)
   }
 
   async function doSend(text: string, assistant: LocalAssistant) {

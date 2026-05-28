@@ -89,7 +89,7 @@ fileInput.addEventListener('change', async (e) => {
     appendMessage('ai', `Loaded <strong>${file.name}</strong> — ${rows.length} rows.`)
 
     // Auto-send initial overview
-    await doSend('Show me the data')
+    await doSend('Show the data')
   }
 
   if (ext === 'csv') {
