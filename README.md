@@ -56,7 +56,7 @@ const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
 await assistant.setLlmApiKey('AIza...')
 
 // Load your data
-assistant.addDataset('data', rows) // rows: Record<string, unknown>[]
+assistant.addDataset('data', rows) // rows: object[] — one object per record
 
 // Ask a question — the LLM generates JS that runs on your data locally
 const { answer, formula } = await assistant.prompt('Show me the top 10 values by revenue')
