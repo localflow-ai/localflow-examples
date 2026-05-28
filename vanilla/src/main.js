@@ -9,29 +9,56 @@ let assistant = null
 let fileName = null
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const app          = document.getElementById('app')
-const keyScreen    = document.getElementById('key-screen')
-const keyInput     = document.getElementById('key-input')
-const saveKeyBtn   = document.getElementById('save-key-btn')
+const keyOverlay  = document.getElementById('key-overlay')
+const keyInput    = document.getElementById('key-input')
+const saveKeyBtn  = document.getElementById('save-key-btn')
+const cancelKeyBtn = document.getElementById('cancel-key-btn')
+const keyBtn      = document.getElementById('key-btn')
+const fileInput   = document.getElementById('file-input')
+const uploadLabel = document.getElementById('upload-label')
+const messages    = document.getElementById('messages')
+const chatInput   = document.getElementById('chat-input')
+const sendBtn     = document.getElementById('send-btn')
+const empty       = document.getElementById('empty')
+const resultFrame = document.getElementById('result-frame')
 
-// ── Key screen ────────────────────────────────────────────────────────────────
+// ── Key modal ─────────────────────────────────────────────────────────────────
+function openKeyModal() {
+  keyInput.value = ''
+  saveKeyBtn.disabled = true
+  cancelKeyBtn.style.display = localStorage.getItem(KEY_STORAGE) ? '' : 'none'
+  keyOverlay.classList.remove('hidden')
+  keyInput.focus()
+}
+
+function closeKeyModal() {
+  keyOverlay.classList.add('hidden')
+}
+
+function saveKey() {
+  const k = keyInput.value.trim()
+  if (!k) return
+  localStorage.setItem(KEY_STORAGE, k)
+  initAssistant(k)
+  closeKeyModal()
+}
+
+keyInput.addEventListener('input', () => {
+  saveKeyBtn.disabled = !keyInput.value.trim()
+})
+keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey() })
+saveKeyBtn.addEventListener('click', saveKey)
+cancelKeyBtn.addEventListener('click', closeKeyModal)
+keyBtn.addEventListener('click', openKeyModal)
+
+// Show modal on load if no key saved
 const savedKey = localStorage.getItem(KEY_STORAGE)
 if (savedKey) {
   initAssistant(savedKey)
-  mountLayout()
+  keyOverlay.classList.add('hidden')
+} else {
+  openKeyModal()
 }
-
-saveKeyBtn.addEventListener('click', () => {
-  const key = keyInput.value.trim()
-  if (!key) return
-  localStorage.setItem(KEY_STORAGE, key)
-  initAssistant(key)
-  mountLayout()
-})
-
-keyInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveKeyBtn.click()
-})
 
 // ── Assistant setup ───────────────────────────────────────────────────────────
 function initAssistant(key) {
@@ -40,69 +67,29 @@ function initAssistant(key) {
   assistant.setLlmApiKey(key)
 }
 
-// ── Layout ────────────────────────────────────────────────────────────────────
-function mountLayout() {
-  app.innerHTML = `
-    <div id="sidebar">
-      <div id="sidebar-header">
-        <span style="font-weight:600">LocalFlow</span>
-        <span style="color:#555;font-size:11px">local mode</span>
-      </div>
-      <label id="upload-label">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" style="display:none" />
-        + Load CSV / Excel
-      </label>
-      <div id="messages"></div>
-      <div id="input-row">
-        <textarea id="chat-input" rows="1" placeholder="Load a file first" disabled></textarea>
-        <button id="send-btn" disabled>↑</button>
-      </div>
-    </div>
-    <div id="main">
-      <div id="empty">Load a file to get started.</div>
-    </div>
-  `
-
-  document.getElementById('file-input').addEventListener('change', handleFileChange)
-
-  const chatInput = document.getElementById('chat-input')
-  const sendBtn   = document.getElementById('send-btn')
-
-  chatInput.addEventListener('input', () => {
-    chatInput.style.height = 'auto'
-    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'
-    sendBtn.disabled = !chatInput.value.trim() || !fileName
-  })
-
-  chatInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click() }
-  })
-
-  sendBtn.addEventListener('click', sendMessage)
-}
-
 // ── File parsing ──────────────────────────────────────────────────────────────
-function handleFileChange(e) {
+fileInput.addEventListener('change', async (e) => {
   const file = e.target.files?.[0]
-  if (!file) return
+  if (!file || !assistant) return
   const ext = file.name.split('.').pop()?.toLowerCase()
 
-  const onRows = (rows) => {
+  const onRows = async (rows) => {
     assistant.clearHistory()
     assistant.addDataset('data', rows)
     fileName = file.name
 
-    const label = document.getElementById('upload-label')
-    label.textContent = `📄 ${file.name}`
-    label.classList.add('loaded')
-
-    const chatInput = document.getElementById('chat-input')
+    uploadLabel.textContent = `📄 ${file.name}`
+    uploadLabel.classList.add('loaded')
     chatInput.disabled = false
     chatInput.placeholder = 'Ask something…'
+    updateSendBtn()
 
-    setEmpty('Ask a question to see the analysis here.')
+    showEmpty(false)
     clearMessages()
-    appendMessage('ai', `Loaded <strong>${file.name}</strong> — ${rows.length} rows. Ask me anything about your data.`)
+    appendMessage('ai', `Loaded <strong>${file.name}</strong> — ${rows.length} rows.`)
+
+    // Auto-send initial overview
+    await doSend('Show me the data')
   }
 
   if (ext === 'csv') {
@@ -118,43 +105,56 @@ function handleFileChange(e) {
     }
     reader.readAsArrayBuffer(file)
   }
-}
+})
 
 // ── Messaging ─────────────────────────────────────────────────────────────────
-async function sendMessage() {
-  const chatInput = document.getElementById('chat-input')
-  const sendBtn   = document.getElementById('send-btn')
-  const text = chatInput.value.trim()
-  if (!text || !assistant || !fileName) return
-
+async function doSend(text) {
   appendMessage('user', text)
-  chatInput.value = ''
-  chatInput.style.height = 'auto'
-  sendBtn.disabled = true
-  chatInput.disabled = true
-
+  setLoading(true)
   const thinking = appendMessage('ai', 'Thinking…', 'thinking')
-
   try {
     const res = await assistant.prompt(text)
     thinking.remove()
     appendMessage('ai', res.answer)
-    if (res.formula) {
-      showResult(assistant.buildSandboxDocument(res.formula))
-    }
+    if (res.formula) showResult(assistant.buildSandboxDocument(res.formula))
   } catch (err) {
     thinking.remove()
     appendMessage('ai', `Error: ${err.message}`)
   } finally {
-    chatInput.disabled = false
-    sendBtn.disabled = false
-    chatInput.focus()
+    setLoading(false)
   }
 }
 
-// ── DOM helpers ───────────────────────────────────────────────────────────────
+sendBtn.addEventListener('click', async () => {
+  const text = chatInput.value.trim()
+  if (!text || !assistant || !fileName) return
+  chatInput.value = ''
+  chatInput.style.height = 'auto'
+  updateSendBtn()
+  await doSend(text)
+})
+
+chatInput.addEventListener('input', () => {
+  chatInput.style.height = 'auto'
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'
+  updateSendBtn()
+})
+
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click() }
+})
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function setLoading(on) {
+  chatInput.disabled = on
+  sendBtn.disabled = on
+}
+
+function updateSendBtn() {
+  sendBtn.disabled = !chatInput.value.trim() || !fileName
+}
+
 function appendMessage(role, html, extraClass = '') {
-  const messages = document.getElementById('messages')
   const div = document.createElement('div')
   div.className = `bubble ${role}${extraClass ? ' ' + extraClass : ''}`
   div.innerHTML = html
@@ -164,33 +164,16 @@ function appendMessage(role, html, extraClass = '') {
 }
 
 function clearMessages() {
-  document.getElementById('messages').innerHTML = ''
+  messages.innerHTML = ''
 }
 
-function setEmpty(text) {
-  const main = document.getElementById('main')
-  const existing = document.getElementById('result-frame')
-  if (existing) existing.remove()
-  let empty = document.getElementById('empty')
-  if (!empty) {
-    empty = document.createElement('div')
-    empty.id = 'empty'
-    main.appendChild(empty)
-  }
-  empty.textContent = text
+function showEmpty(visible) {
+  empty.style.display = visible ? 'flex' : 'none'
+  resultFrame.style.display = visible ? 'none' : 'none'
 }
 
 function showResult(srcdoc) {
-  const main = document.getElementById('main')
-  const empty = document.getElementById('empty')
-  if (empty) empty.remove()
-  let frame = document.getElementById('result-frame')
-  if (!frame) {
-    frame = document.createElement('iframe')
-    frame.id = 'result-frame'
-    frame.setAttribute('sandbox', 'allow-scripts allow-downloads')
-    frame.setAttribute('title', 'Analysis result')
-    main.appendChild(frame)
-  }
-  frame.srcdoc = srcdoc
+  empty.style.display = 'none'
+  resultFrame.style.display = 'block'
+  resultFrame.srcdoc = srcdoc
 }
