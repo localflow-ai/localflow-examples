@@ -1,4 +1,5 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 body {
   font-family: system-ui, sans-serif;

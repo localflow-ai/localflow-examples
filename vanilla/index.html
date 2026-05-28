@@ -41,7 +41,9 @@
       }
       .bubble.user { align-self: flex-end; background: #1d4ed8; color: #fff; }
       .bubble.ai   { align-self: flex-start; background: #1e1e1e; }
-      .thinking    { color: #666; font-size: 12px; }
+      .thinking    { color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+      .thinking svg { animation: spin 1s linear infinite; flex-shrink: 0; }
+      @keyframes spin { to { transform: rotate(360deg); } }
       #input-row {
         display: flex; gap: 6px; padding: 10px 12px;
         border-top: 1px solid #222; align-items: flex-end;
