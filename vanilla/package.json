@@ -15,5 +15,6 @@
   },
   "devDependencies": {
     "vite": "^6.0.0"
-  }
+  },
+  "description": "Metadata-first AI example \u2014 plain JS + Vite"
 }

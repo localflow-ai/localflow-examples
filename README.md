@@ -1,6 +1,8 @@
 # LocalFlow Examples
 
-Minimal examples showing how to embed a **LocalFlow AI assistant** in your own app using [`localflow-core`](https://github.com/localflow-ai/localflow-core).
+Minimal examples showing how to embed a **metadata-first AI assistant** in your own app using [`localflow-core`](https://github.com/localflow-ai/localflow-core).
+
+With metadata-first AI, the LLM receives only schema and column names — never your actual data values. It generates deterministic code that runs locally in a sandboxed iframe on your full dataset.
 
 Each example provides:
 - A CSV / Excel file loader
@@ -65,7 +67,7 @@ const { answer, formula } = await assistant.prompt('Show me the top 10 values by
 iframe.srcdoc = assistant.buildSandboxDocument(formula)
 ```
 
-The key idea: the LLM never sees your raw data. It only sees the schema, generates executable JavaScript, and that code runs locally in a sandboxed iframe on your full dataset. Your data never leaves the browser.
+The key idea — **metadata-first AI**: the LLM only ever receives metadata (schema, column names) — never your raw data. It generates executable JavaScript that runs locally in a sandboxed iframe on your full dataset. Your data never leaves the browser.
 
 ## Production use
 
