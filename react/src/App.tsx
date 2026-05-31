@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import Papa from 'papaparse'
 import readXlsxFile from 'read-excel-file/browser'
-import { LocalAssistant, LocalProxy } from '@localflow/core'
+import { LocalAssistant, LocalProxy, LocalProxyRateLimitError } from '@localflow/core'
 import type { AssistantResponse } from '@localflow/core'
 
 const KEY_STORAGE = 'lf_gemini_key'
+const DEMO_KEY = import.meta.env.VITE_GEMINI_DEMO_KEY ?? ''
+const RATE_LIMIT_PER_DAY = 20
 
 interface Message {
   id: string
@@ -33,18 +35,25 @@ function parseFile(file: File): Promise<Record<string, unknown>[]> {
 }
 
 // ── Key modal ─────────────────────────────────────────────────────────────────
-function KeyModal({ current, onSave, onCancel }: {
+function KeyModal({ current, notice, onSave, onCancel }: {
   current: string
+  notice?: string
   onSave: (k: string) => void
-  onCancel: () => void
+  onCancel?: () => void
 }) {
   const [draft, setDraft] = useState(current)
   return (
     <div style={S.overlay}>
       <div style={S.modal}>
         <h3 style={{ marginBottom: 8 }}>Gemini API Key</h3>
+        {notice && (
+          <p style={{ color: '#f97316', fontSize: 12, marginBottom: 10, lineHeight: 1.5 }}>
+            {notice}
+          </p>
+        )}
         <p style={{ color: '#888', fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
-          Your key stays in the browser and is never sent to any server.
+          Your key stays in the browser and is never sent to any server.{' '}
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ color: '#7cf' }}>Get a free key →</a>
         </p>
         <input
           type="password"
@@ -63,7 +72,7 @@ function KeyModal({ current, onSave, onCancel }: {
           >
             Save
           </button>
-          {current && (
+          {onCancel && (
             <button onClick={onCancel} style={S.btnSecondary}>
               Cancel
             </button>
@@ -77,7 +86,8 @@ function KeyModal({ current, onSave, onCancel }: {
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem(KEY_STORAGE) ?? '')
-  const [showKeyModal, setShowKeyModal] = useState(() => !localStorage.getItem(KEY_STORAGE))
+  const [keyModalNotice, setKeyModalNotice] = useState<string | undefined>()
+  const [showKeyModal, setShowKeyModal] = useState(false)
   const [fileName, setFileName] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -87,10 +97,12 @@ export default function App() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!geminiKey) return
-    const proxy = new LocalProxy()
+    const proxy = new LocalProxy({
+      geminiApiKey: DEMO_KEY,
+      rateLimit: DEMO_KEY ? { maxPerDay: RATE_LIMIT_PER_DAY } : undefined,
+    })
     const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
-    assistant.setLlmApiKey(geminiKey)
+    if (geminiKey) assistant.setLlmApiKey(geminiKey)
     assistantRef.current = assistant
   }, [geminiKey])
 
@@ -103,6 +115,12 @@ export default function App() {
     localStorage.setItem(KEY_STORAGE, k)
     setGeminiKey(k)
     setShowKeyModal(false)
+    setKeyModalNotice(undefined)
+  }
+
+  function openKeyModal(notice?: string) {
+    setKeyModalNotice(notice)
+    setShowKeyModal(true)
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -137,11 +155,17 @@ export default function App() {
       setMessages(prev => [...prev, aMsg])
       if (res.formula) setSrcdoc(assistant.buildSandboxDocument(res.formula))
     } catch (err: unknown) {
-      setMessages(prev => [...prev, {
-        id: `e-${Date.now()}`,
-        role: 'assistant',
-        content: `Error: ${(err as Error).message}`,
-      }])
+      if (err instanceof LocalProxyRateLimitError) {
+        openKeyModal(`You've used the ${RATE_LIMIT_PER_DAY} daily demo requests. Enter your own key to continue.`)
+      } else if ((err as Error).message?.includes('429')) {
+        openKeyModal('The shared demo key has reached its limit. Enter your own key to continue.')
+      } else {
+        setMessages(prev => [...prev, {
+          id: `e-${Date.now()}`,
+          role: 'assistant',
+          content: `Error: ${(err as Error).message}`,
+        }])
+      }
     } finally {
       setLoading(false)
     }
@@ -163,8 +187,9 @@ export default function App() {
       {showKeyModal && (
         <KeyModal
           current={geminiKey}
+          notice={keyModalNotice}
           onSave={saveKey}
-          onCancel={() => setShowKeyModal(false)}
+          onCancel={!keyModalNotice ? () => setShowKeyModal(false) : undefined}
         />
       )}
 
@@ -174,8 +199,8 @@ export default function App() {
           <div style={S.sidebarHeader}>
             <span style={{ fontWeight: 600 }}>LocalFlow</span>
             <button
-              onClick={() => setShowKeyModal(true)}
-              title="Edit API key"
+              onClick={() => openKeyModal()}
+              title={geminiKey ? 'Change API key' : 'Enter your own API key'}
               style={S.iconBtn}
             >
               🔑

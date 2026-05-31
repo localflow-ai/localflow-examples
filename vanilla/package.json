@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@localflow/core": "^0.1.0",
+    "@localflow/core": "^0.1.1",
     "papaparse": "^5.4.1",
     "read-excel-file": "^9.0.10"
   },
