@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@localflow/core": "^0.1.1",
+    "@localflow/core": "^0.1.2",
+    "@types/prismjs": "^1.26.6",
     "papaparse": "^5.4.1",
+    "prismjs": "^1.30.0",
     "read-excel-file": "^9.0.10"
   },
   "devDependencies": {
