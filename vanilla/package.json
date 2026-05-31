@@ -11,7 +11,7 @@
   "dependencies": {
     "papaparse": "^5.4.1",
     "xlsx": "^0.18.5",
-    "@localflow/core": "file:../../localflow-core"
+    "@localflow/core": "^0.1.0"
   },
   "devDependencies": {
     "vite": "^6.0.0"

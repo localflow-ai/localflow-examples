@@ -22,14 +22,7 @@ No server required — the assistant runs entirely in the browser using `LocalPr
 
 > **Prerequisites:** Node.js 18+, a [Gemini API key](https://aistudio.google.com/apikey)
 
-Because `@localflow/core` is a local dependency (`file:../../localflow-core`), you need to build it once before running the examples:
-
-```bash
-cd ../../localflow-core
-npm install && npm run build
-```
-
-Then run either example:
+Run either example:
 
 ```bash
 # React
