@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "localflow-core": "file:../../localflow-core",
     "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@localflow-ai/core": "file:../../localflow-core"
   },
   "devDependencies": {
     "vite": "^6.0.0"

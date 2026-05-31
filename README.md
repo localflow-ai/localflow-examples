@@ -1,6 +1,6 @@
 # LocalFlow Examples
 
-Minimal examples showing how to embed a **metadata-first AI assistant** in your own app using [`localflow-core`](https://github.com/localflow-ai/localflow-core).
+Minimal examples showing how to embed a **metadata-first AI assistant** in your own app using [`@localflow-ai/core`](https://github.com/localflow-ai/localflow-core).
 
 With metadata-first AI, the LLM receives only schema and column names — never your actual data values. It generates deterministic code that runs locally in a sandboxed iframe on your full dataset.
 
@@ -22,7 +22,7 @@ No server required — the assistant runs entirely in the browser using `LocalPr
 
 > **Prerequisites:** Node.js 18+, a [Gemini API key](https://aistudio.google.com/apikey)
 
-Because `localflow-core` is a local dependency (`file:../../localflow-core`), you need to build it once before running the examples:
+Because `@localflow-ai/core` is a local dependency (`file:../../localflow-core`), you need to build it once before running the examples:
 
 ```bash
 cd ../../localflow-core
@@ -48,7 +48,7 @@ Open the URL shown in your terminal, enter your Gemini API key, load a CSV or Ex
 ## How it works
 
 ```js
-import { LocalProxy, LocalAssistant } from 'localflow-core'
+import { LocalProxy, LocalAssistant } from '@localflow-ai/core'
 
 // No server needed — LocalProxy runs entirely in the browser
 const proxy = new LocalProxy()
@@ -75,7 +75,7 @@ The key idea — **metadata-first AI**: the LLM only ever receives metadata (sch
 
 ```js
 // Production
-import { ProxyClient, LocalAssistant } from 'localflow-core'
+import { ProxyClient, LocalAssistant } from '@localflow-ai/core'
 
 const proxy = new ProxyClient('https://your-proxy.example.com')
 
