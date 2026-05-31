@@ -1,6 +1,6 @@
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
-import { LocalAssistant, LocalProxy } from '@localflow-ai/core'
+import { LocalAssistant, LocalProxy } from '@localflow/core'
 
 const KEY_STORAGE = 'lf_gemini_key'
 
