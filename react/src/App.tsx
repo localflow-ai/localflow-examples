@@ -49,7 +49,11 @@ function parseFile(file: File): Promise<Record<string, unknown>[]> {
         const [headers, ...dataRows] = rows
         resolve(dataRows.map((row: any[]) =>
           Object.fromEntries(
-            (headers as any[]).map((h: any, i: number) => [String(h ?? `col${i + 1}`), row[i]])
+            (headers as any[]).map((h: any, i: number) => {
+              const v = row[i]
+              const safe = v instanceof Date ? v.toLocaleDateString() : v
+              return [String(h ?? `col${i + 1}`), safe]
+            })
           )
         ))
       }).catch(reject)
@@ -114,6 +118,11 @@ function KeyModal({ current, notice, onSave, onCancel }: {
           <button onClick={() => onSave(draft.trim())} disabled={!draft.trim()} style={{ ...S.btn, flex: 1 }}>
             Save
           </button>
+          {current && (
+            <button onClick={() => onSave('')} title="Remove key and use demo mode" style={S.btnSecondary}>
+              Clear
+            </button>
+          )}
           {onCancel && (
             <button onClick={onCancel} style={S.btnSecondary}>Cancel</button>
           )}
@@ -149,6 +158,45 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
         <pre style={S.codePre}>
           <code dangerouslySetInnerHTML={{ __html: highlighted }} />
         </pre>
+      </div>
+    </div>
+  )
+}
+
+// ── Data modal ────────────────────────────────────────────────────────────────
+function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[]; fileName: string; onClose: () => void }) {
+  const columns = rows.length > 0 ? Object.keys(rows[0]) : []
+  return (
+    <div style={S.overlay} onClick={onClose}>
+      <div style={{ ...S.formulaModal, width: 'min(900px, 95vw)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ color: T.fg, fontSize: 13, fontWeight: 600 }}>📄 {fileName} — {rows.length} rows</span>
+          <button onClick={onClose} style={{ ...S.iconBtn, fontSize: 18, opacity: 0.7 }}>✕</button>
+        </div>
+        <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: 'ui-monospace, monospace' }}>
+            <thead>
+              <tr>
+                {columns.map(col => (
+                  <th key={col} style={{ padding: '6px 10px', textAlign: 'left', whiteSpace: 'nowrap', color: T.muted, borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 0, background: 'oklch(0.13 0 0)' }}>
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : 'oklch(1 0 0 / 0.02)' }}>
+                  {columns.map(col => (
+                    <td key={col} style={{ padding: '5px 10px', whiteSpace: 'nowrap', color: T.fg, borderBottom: `1px solid ${T.border}`, maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {row[col] == null ? <span style={{ color: T.muted }}>—</span> : String(row[col])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
@@ -236,15 +284,41 @@ export default function App() {
   const [srcdoc, setSrcdoc] = useState<string | null>(null)
   const [formula, setFormula] = useState<string | null>(null)
   const [showFormula, setShowFormula] = useState(false)
+  const [rows, setRows] = useState<Record<string, unknown>[]>([])
+  const [showData, setShowData] = useState(false)
   const assistantRef = useRef<LocalAssistant | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const proxy = new LocalProxy({
       geminiApiKey: DEMO_KEY,
-      rateLimit: DEMO_KEY ? { maxPerDay: RATE_LIMIT_PER_DAY } : undefined,
+      rateLimit: (DEMO_KEY && !geminiKey) ? { maxPerDay: RATE_LIMIT_PER_DAY } : undefined,
     })
-    const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' }, darkMode: true })
+    const assistant = new LocalAssistant({
+      proxy,
+      llm: { type: 'gemini' },
+      darkMode: true,
+      sandboxTheme: {
+        extend: {
+          colors: {
+            primary: '#14b8a6',
+            gray: {
+              50:  '#fafafa',
+              100: '#f2f2f2',
+              200: '#e0e0e0',
+              300: '#c0c0c0',
+              400: '#8a8a8a',
+              500: '#6a6a6a',
+              600: '#4a4a4a',
+              700: '#333333',
+              800: '#292929',
+              900: '#111111',
+              950: '#0a0a0a',
+            },
+          },
+        },
+      },
+    })
     if (geminiKey) assistant.setLlmApiKey(geminiKey)
     assistantRef.current = assistant
   }, [geminiKey])
@@ -254,8 +328,11 @@ export default function App() {
   }, [messages, loading])
 
   function saveKey(k: string) {
-    if (!k) return
-    localStorage.setItem(KEY_STORAGE, k)
+    if (k) {
+      localStorage.setItem(KEY_STORAGE, k)
+    } else {
+      localStorage.removeItem(KEY_STORAGE)
+    }
     setGeminiKey(k)
     setShowKeyModal(false)
     setKeyModalNotice(undefined)
@@ -281,6 +358,7 @@ export default function App() {
 
     setFileName(file.name)
     setRowCount(rows.length)
+    setRows(rows)
     assistant.clearHistory()
     assistant.clearDatasets?.()
     assistant.addDataset('data', rows)
@@ -359,6 +437,7 @@ export default function App() {
     <>
       {showKeyModal && <KeyModal current={geminiKey} notice={keyModalNotice} onSave={saveKey} onCancel={!keyModalNotice ? () => setShowKeyModal(false) : undefined} />}
       {showFormula && formula && <FormulaModal formula={formula} onClose={() => setShowFormula(false)} />}
+      {showData && <DataModal rows={rows} fileName={fileName ?? ''} onClose={() => setShowData(false)} />}
       <div style={S.layout}>
         {/* Sidebar */}
         <div style={S.sidebar}>
@@ -379,7 +458,9 @@ export default function App() {
 
           <div style={S.fileChip}>
             <span style={{ color: T.primary, marginRight: 6 }}>📄</span>
-            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{fileName}</span>
+            <button onClick={() => setShowData(true)} title="View raw data" style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: T.primary, textAlign: 'left', textDecoration: 'underline', textDecorationColor: `${T.primary}60` }}>
+              {fileName}
+            </button>
             <span style={{ color: T.muted, fontSize: 11, flexShrink: 0, marginRight: 6 }}>{rowCount} rows</span>
             {formula && (
               <button onClick={() => setShowFormula(true)} title="Inspect generated formula" style={{ ...S.iconBtn, fontSize: 11, opacity: 0.7, fontFamily: 'monospace', fontWeight: 700 }}>

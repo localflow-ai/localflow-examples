@@ -100,7 +100,10 @@ fileInput.addEventListener('change', async (e) => {
   } else {
     readXlsxFile(file).then(([headers, ...dataRows]) => {
       onRows(dataRows.map(row =>
-        Object.fromEntries(headers.map((h, i) => [String(h ?? `col${i + 1}`), row[i]]))
+        Object.fromEntries(headers.map((h, i) => {
+          const v = row[i]
+          return [String(h ?? `col${i + 1}`), v instanceof Date ? v.toLocaleDateString() : v]
+        }))
       ))
     })
   }

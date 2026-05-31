@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@localflow/core": "^0.1.4",
+    "@localflow/core": "file:../../localflow-core",
     "@types/prismjs": "^1.26.6",
     "papaparse": "^5.4.1",
     "prismjs": "^1.30.0",
