@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@localflow/core": "^0.1.0",
     "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5",
-    "@localflow/core": "^0.1.0"
+    "read-excel-file": "^9.0.10"
   },
   "devDependencies": {
     "vite": "^6.0.0"
   },
-  "description": "Metadata-first AI example \u2014 plain JS + Vite"
+  "description": "Metadata-first AI example — plain JS + Vite"
 }

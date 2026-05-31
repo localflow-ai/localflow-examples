@@ -1,5 +1,5 @@
 import Papa from 'papaparse'
-import * as XLSX from 'xlsx'
+import readXlsxFile from 'read-excel-file/browser'
 import { LocalAssistant, LocalProxy } from '@localflow/core'
 
 const KEY_STORAGE = 'lf_gemini_key'
@@ -98,12 +98,11 @@ fileInput.addEventListener('change', async (e) => {
       complete: r => onRows(r.data),
     })
   } else {
-    const reader = new FileReader()
-    reader.onload = e => {
-      const wb = XLSX.read(e.target.result, { type: 'array' })
-      onRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]))
-    }
-    reader.readAsArrayBuffer(file)
+    readXlsxFile(file).then(([headers, ...dataRows]) => {
+      onRows(dataRows.map(row =>
+        Object.fromEntries(headers.map((h, i) => [String(h ?? `col${i + 1}`), row[i]]))
+      ))
+    })
   }
 })
 

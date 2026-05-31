@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@localflow/core": "^0.1.0",
     "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5",
-    "@localflow/core": "^0.1.0"
+    "read-excel-file": "^9.0.10"
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.14",
@@ -23,5 +23,5 @@
     "typescript": "^5.5.0",
     "vite": "^6.0.0"
   },
-  "description": "Metadata-first AI example \u2014 React + Vite + TypeScript"
+  "description": "Metadata-first AI example — React + Vite + TypeScript"
 }
