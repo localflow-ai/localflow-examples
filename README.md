@@ -2,6 +2,8 @@
 
 Minimal examples showing how to embed a **metadata-first AI assistant** in your own app using [`@localflow/core`](https://github.com/localflow-ai/localflow-core).
 
+> 🚀 Live example (React): [apps.localflow.fr/demo](https://apps.localflow.fr/demo/)
+
 With metadata-first AI, the LLM receives only schema and column names — never your actual data values. It generates deterministic code that runs locally in a sandboxed iframe on your full dataset.
 
 Each example provides:
