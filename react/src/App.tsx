@@ -215,10 +215,10 @@ function DropZone({ onFile, onKeyClick }: { onFile: (f: File) => void; onKeyClic
       <div className="flex flex-col items-center gap-5">
         <img src={logo} alt="LocalFlow" className="w-16 h-16 rounded-[14px]" />
         <div className="text-center">
-          <h1 className="text-fg text-2xl font-bold mb-1.5">
+          <h1 className="text-fg text-3xl font-bold mb-1.5">
             LocalFlow <span className="text-primary">AI Demo</span>
           </h1>
-          <p className="text-muted text-sm">Metadata-first AI — your data never leaves the browser</p>
+          <p className="text-muted text-lg">Metadata-first AI — your data never leaves the browser</p>
         </div>
 
         <div
@@ -236,20 +236,20 @@ function DropZone({ onFile, onKeyClick }: { onFile: (f: File) => void; onKeyClic
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          <p className="text-fg text-sm font-medium mb-1.5 text-center">Drop a CSV or Excel file here</p>
-          <p className="text-muted text-xs text-center leading-relaxed max-w-xs mb-4">
+          <p className="text-fg text-base font-medium mb-1.5 text-center">Drop a CSV or Excel file here</p>
+          <p className="text-muted text-sm text-center leading-relaxed max-w-xs mb-4">
             The data is loaded in your browser and never sent to any server.
             Only the column names and statistics are shared with the AI to generate the analysis.
           </p>
           <button onClick={() => inputRef.current?.click()}
-            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg px-5 py-2 text-sm font-semibold cursor-pointer">
+            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg px-5 py-2 text-base font-semibold cursor-pointer">
             Browse files
           </button>
           <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
         </div>
 
-        <p className="text-muted/70 text-[11px] text-center">Supports CSV and Excel (.xlsx, .xls)</p>
+        <p className="text-muted/70 text-sm text-center">Supports CSV and Excel (.xlsx, .xls)</p>
       </div>
     </div>
   )
@@ -426,7 +426,7 @@ export default function App() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-[300px] flex flex-col border-r border-white/15 bg-sidebar">
+        <div className="w-[320px] flex flex-col border-r border-white/15 bg-sidebar">
           <div className="flex justify-between items-center px-3.5 py-3 border-b border-white/15">
             <div className="flex items-center gap-2">
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
@@ -449,10 +449,10 @@ export default function App() {
           <div className="flex items-center px-3.5 py-2 border-b border-white/15 bg-white/[0.025] gap-1.5">
             <span className="text-primary">📄</span>
             <button onClick={() => setShowData(true)} title="View raw data"
-              className="flex-1 bg-transparent border-none p-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap text-xs text-primary text-left underline decoration-primary/40">
+              className="flex-1 bg-transparent border-none p-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap text-sm text-primary text-left underline decoration-primary/40">
               {fileName}
             </button>
-            <span className="text-muted text-[11px] shrink-0 mr-1.5">{rowCount} rows</span>
+            <span className="text-muted text-xs shrink-0 mr-1.5">{rowCount} rows</span>
             {formula && (
               <button onClick={() => setShowFormula(true)} title="Inspect generated formula"
                 className="bg-transparent border-none cursor-pointer text-[11px] text-fg/55 font-mono font-bold hover:text-fg/80">
@@ -463,7 +463,7 @@ export default function App() {
 
           <div className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-2">
             {messages.length === 0 && (
-              <p className="text-muted text-xs leading-relaxed py-1">Ask a question about your data.</p>
+              <p className="text-muted text-sm leading-relaxed py-1">Ask a question about your data.</p>
             )}
             {messages.map(msg => (
               <div key={msg.id} className={`flex items-end gap-1.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -476,11 +476,11 @@ export default function App() {
                     </svg>
                   </div>
                 )}
-                <div className={`rounded-xl px-3 py-2 max-w-[80%] text-sm leading-snug ${
+                <div className={`rounded-xl px-3 py-2 max-w-[80%] text-base leading-snug ${
                   msg.role === 'user' ? 'bg-user-bubble text-fg' : 'bg-card text-fg'
                 }`}>
                   {msg.role === 'assistant'
-                    ? <span className="[&_p]:my-0.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-0.5 [&_ul]:pl-4 [&_ol]:my-0.5 [&_ol]:pl-4 [&_li]:my-0 [&_strong]:font-semibold [&_em]:italic [&_h1]:text-sm [&_h1]:font-semibold [&_h2]:text-xs [&_h2]:font-semibold [&_h3]:text-xs [&_h3]:font-medium"
+                    ? <span className="[&_p]:my-0.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-0.5 [&_ul]:pl-4 [&_ol]:my-0.5 [&_ol]:pl-4 [&_li]:my-0 [&_strong]:font-semibold [&_em]:italic [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-medium"
                         dangerouslySetInnerHTML={{ __html: marked.parse(msg.content) as string }} />
                     : msg.content}
                 </div>
@@ -507,12 +507,12 @@ export default function App() {
                 rows={1}
                 disabled={loading}
                 placeholder="Ask something about your data…"
-                className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-sm resize-none outline-none font-[inherit] min-h-[34px] max-h-[120px] disabled:opacity-50"
+                className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-base resize-none outline-none font-[inherit] min-h-[36px] max-h-[120px] disabled:opacity-50"
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
               />
               <button onClick={send} disabled={!input.trim() || loading}
-                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[34px] h-[34px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
+                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[36px] h-[36px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
                 ➤
               </button>
             </div>
