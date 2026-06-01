@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@localflow/core": "file:../../localflow-core",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/prismjs": "^1.26.6",
+    "marked": "^18.0.4",
     "papaparse": "^5.4.1",
     "prismjs": "^1.30.0",
-    "read-excel-file": "^9.0.10"
+    "read-excel-file": "^9.0.10",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.14",
