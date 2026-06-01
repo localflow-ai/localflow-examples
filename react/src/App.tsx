@@ -476,11 +476,11 @@ export default function App() {
                     </svg>
                   </div>
                 )}
-                <div className={`rounded-xl px-3 py-2 max-w-[80%] text-base leading-snug ${
+                <div className={`rounded-xl px-3 py-2 max-w-[80%] text-sm leading-snug ${
                   msg.role === 'user' ? 'bg-user-bubble text-fg' : 'bg-card text-fg'
                 }`}>
                   {msg.role === 'assistant'
-                    ? <span className="[&_p]:my-0.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-0.5 [&_ul]:pl-4 [&_ol]:my-0.5 [&_ol]:pl-4 [&_li]:my-0 [&_strong]:font-semibold [&_em]:italic [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-medium"
+                    ? <span className="[&_p]:my-0.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-0.5 [&_ul]:pl-4 [&_ol]:my-0.5 [&_ol]:pl-4 [&_li]:my-0 [&_strong]:font-semibold [&_em]:italic [&_h1]:text-sm [&_h1]:font-semibold [&_h2]:text-xs [&_h2]:font-semibold [&_h3]:text-xs [&_h3]:font-medium"
                         dangerouslySetInnerHTML={{ __html: marked.parse(msg.content) as string }} />
                     : msg.content}
                 </div>
@@ -507,12 +507,12 @@ export default function App() {
                 rows={1}
                 disabled={loading}
                 placeholder="Ask something about your data…"
-                className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-base resize-none outline-none font-[inherit] min-h-[36px] max-h-[120px] disabled:opacity-50"
+                className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-sm resize-none outline-none font-[inherit] min-h-[34px] max-h-[120px] disabled:opacity-50"
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
               />
               <button onClick={send} disabled={!input.trim() || loading}
-                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[36px] h-[36px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
+                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[34px] h-[34px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
                 ➤
               </button>
             </div>
