@@ -426,7 +426,7 @@ export default function App() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-[320px] flex flex-col border-r border-white/15 bg-sidebar">
+        <div className="w-[336px] flex flex-col border-r border-white/15 bg-sidebar">
           <div className="flex justify-between items-center px-3.5 py-3 border-b border-white/15">
             <div className="flex items-center gap-2">
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
