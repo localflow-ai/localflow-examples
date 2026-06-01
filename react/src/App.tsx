@@ -60,8 +60,8 @@ function Spinner({ label, sublabel }: { label: string; sublabel?: string }) {
             style={{ animation: 'bounce 1.2s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
-      <p className="text-fg text-base font-semibold mb-2 text-center">{label}</p>
-      {sublabel && <p className="text-muted text-sm text-center max-w-xs leading-relaxed">{sublabel}</p>}
+      <p className="text-fg text-xl font-semibold mb-2 text-center">{label}</p>
+      {sublabel && <p className="text-muted text-base text-center max-w-xs leading-relaxed">{sublabel}</p>}
     </div>
   )
 }
