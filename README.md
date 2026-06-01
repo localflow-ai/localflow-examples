@@ -38,6 +38,15 @@ npm run dev
 
 Open the URL shown in your terminal, enter your Gemini API key, load a CSV or Excel file, and start asking questions.
 
+## Building for production
+
+```bash
+cd react   # or vanilla
+npm run build
+```
+
+This produces a `dist/` folder of static files ready to be served by any web server.
+
 ## How it works
 
 ```js
