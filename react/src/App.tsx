@@ -500,20 +500,23 @@ export default function App() {
             <div ref={bottomRef} />
           </div>
 
-          <div className="flex gap-1.5 px-3 py-2.5 border-t border-white/15 items-end">
-            <textarea
-              value={input}
-              rows={1}
-              disabled={loading}
-              placeholder="Ask something about your data…"
-              className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-sm resize-none outline-none font-[inherit] min-h-[34px] max-h-[120px] disabled:opacity-50"
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-            />
-            <button onClick={send} disabled={!input.trim() || loading}
-              className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[34px] h-[34px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
-              ➤
-            </button>
+          <div className="border-t border-white/15 px-3 pt-2.5 pb-1.5">
+            <div className="flex gap-1.5 items-end">
+              <textarea
+                value={input}
+                rows={1}
+                disabled={loading}
+                placeholder="Ask something about your data…"
+                className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-sm resize-none outline-none font-[inherit] min-h-[34px] max-h-[120px] disabled:opacity-50"
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+              />
+              <button onClick={send} disabled={!input.trim() || loading}
+                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg w-[34px] h-[34px] cursor-pointer text-base font-bold shrink-0 disabled:opacity-50">
+                ➤
+              </button>
+            </div>
+            <p className="mt-1.5 text-center text-[10px] text-muted/50">Your data stays local — only column names and statistics are shared with the AI.</p>
           </div>
         </div>
 
