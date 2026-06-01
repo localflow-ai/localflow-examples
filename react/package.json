@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@localflow/core": "file:../../localflow-core",
+    "@localflow/core": "^0.1.5",
     "@tailwindcss/vite": "^4.3.0",
     "@types/prismjs": "^1.26.6",
     "marked": "^18.0.4",
