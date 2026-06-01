@@ -516,7 +516,7 @@ export default function App() {
                 ➤
               </button>
             </div>
-            <p className="mt-1.5 text-center text-[10px] text-muted/50">Your data stays local — only column names and statistics are shared with the AI.</p>
+            <p className="mt-1.5 text-center text-[11px] text-muted/70">Your data stays local — only column names and statistics are shared with the AI.</p>
           </div>
         </div>
 
