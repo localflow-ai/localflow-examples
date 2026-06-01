@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@localflow/core": "file:../../localflow-core",
+    "@tailwindcss/vite": "^4.3.0",
+    "marked": "^18.0.4",
     "papaparse": "^5.4.1",
-    "read-excel-file": "^9.0.10"
+    "read-excel-file": "^9.0.10",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "vite": "^6.0.0"
