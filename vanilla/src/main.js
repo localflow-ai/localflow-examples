@@ -2,11 +2,9 @@ import './style.css'
 import { marked } from 'marked'
 import Papa from 'papaparse'
 import readXlsxFile from 'read-excel-file/browser'
-import { LocalAssistant, LocalProxy, LocalProxyRateLimitError } from '@localflow/core'
+import { LocalAssistant, LocalProxy } from '@localflow/core'
 
 const KEY_STORAGE = 'lf_gemini_key'
-const DEMO_KEY = import.meta.env.VITE_GEMINI_DEMO_KEY ?? ''
-const RATE_LIMIT_PER_DAY = 20
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const keyOverlay    = document.getElementById('key-overlay')
@@ -26,6 +24,8 @@ const spinnerPage   = document.getElementById('spinner-page')
 const spinnerLabel  = document.getElementById('spinner-label')
 const spinnerSub    = document.getElementById('spinner-sublabel')
 const appDiv        = document.getElementById('app')
+const noKeyWarning  = document.getElementById('no-key-warning')
+const noKeyBtn      = document.getElementById('no-key-btn')
 const resetBtn      = document.getElementById('reset-btn')
 const fileChip      = document.getElementById('file-chip')
 const rowCount      = document.getElementById('row-count')
@@ -59,10 +59,7 @@ function showSpinner(label, sublabel = '') {
 
 // ── Assistant init ────────────────────────────────────────────────────────────
 function initAssistant() {
-  const proxy = new LocalProxy({
-    geminiApiKey: DEMO_KEY,
-    rateLimit: (DEMO_KEY && !geminiKey) ? { maxPerDay: RATE_LIMIT_PER_DAY } : undefined,
-  })
+  const proxy = new LocalProxy({})
   assistant = new LocalAssistant({
     proxy,
     llm: { type: 'gemini' },
@@ -109,6 +106,10 @@ function closeKeyModal() {
   keyOverlay.classList.add('hidden')
 }
 
+function updateNoKeyWarning() {
+  noKeyWarning.classList.toggle('hidden', !!geminiKey)
+}
+
 function saveKey(k) {
   if (k) {
     localStorage.setItem(KEY_STORAGE, k)
@@ -118,7 +119,11 @@ function saveKey(k) {
   geminiKey = k
   initAssistant()
   closeKeyModal()
+  updateNoKeyWarning()
 }
+
+noKeyBtn.addEventListener('click', () => openKeyModal())
+updateNoKeyWarning()
 
 keyInput.addEventListener('input', () => { saveKeyBtn.disabled = !keyInput.value.trim() })
 keyInput.addEventListener('keydown', e => { if (e.key === 'Enter' && keyInput.value.trim()) saveKey(keyInput.value.trim()) })
@@ -128,8 +133,6 @@ cancelKeyBtn.addEventListener('click', closeKeyModal)
 keyBtn.addEventListener('click', () => openKeyModal())
 keyBtnDrop.addEventListener('click', () => openKeyModal())
 
-// Show modal on first load if no key and no demo key
-if (!geminiKey && !DEMO_KEY) openKeyModal()
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
 dropZone.addEventListener('dragover', e => {
@@ -234,12 +237,13 @@ resetBtn.addEventListener('click', () => {
 
 // ── Messaging ─────────────────────────────────────────────────────────────────
 function handlePromptError(err) {
-  if (err instanceof LocalProxyRateLimitError) {
-    openKeyModal(`You've used the ${RATE_LIMIT_PER_DAY} daily demo requests. Enter your own key to continue.`)
-  } else if (err.message?.includes('429')) {
+  const msg = err.message ?? ''
+  if (msg.includes('429')) {
     openKeyModal('The shared demo key has reached its limit. Enter your own key to continue.')
+  } else if (msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('unauthorized')) {
+    openKeyModal('The demo key is unavailable. Please enter your own Gemini API key to continue.')
   } else {
-    appendMessage('ai', `Error: ${err.message}`)
+    appendMessage('ai', `Error: ${msg}`)
   }
 }
 

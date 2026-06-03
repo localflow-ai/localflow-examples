@@ -4,13 +4,11 @@ import readXlsxFile from 'read-excel-file/browser'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 import { marked } from 'marked'
-import { LocalAssistant, LocalProxy, LocalProxyRateLimitError } from '@localflow/core'
+import { LocalAssistant, LocalProxy } from '@localflow/core'
 import type { AssistantResponse } from '@localflow/core'
 import logo from './logo.webp'
 
 const KEY_STORAGE = 'lf_gemini_key'
-const DEMO_KEY = import.meta.env.VITE_GEMINI_DEMO_KEY ?? ''
-const RATE_LIMIT_PER_DAY = 20
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Phase = 'idle' | 'parsing' | 'analyzing' | 'ready'
@@ -194,7 +192,7 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
 }
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
-function DropZone({ onFile, onKeyClick }: { onFile: (f: File) => void; onKeyClick: () => void }) {
+function DropZone({ onFile, onKeyClick, noKey }: { onFile: (f: File) => void; onKeyClick: () => void; noKey: boolean }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -220,6 +218,19 @@ function DropZone({ onFile, onKeyClick }: { onFile: (f: File) => void; onKeyClic
           </h1>
           <p className="text-muted text-lg">Metadata-first AI — your data never leaves the browser</p>
         </div>
+
+        {noKey && (
+          <div className="w-full max-w-[440px] bg-amber-400/10 border border-amber-400/30 rounded-xl px-4 py-3 flex flex-col gap-2">
+            <p className="text-amber-300 text-sm leading-relaxed">
+              This demo requires your own Gemini API key. It will stay in your browser and never be sent to any server.{' '}
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="underline">Get a free key →</a>
+            </p>
+            <button onClick={onKeyClick}
+              className="self-start bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/40 text-amber-300 rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors">
+              Set my key
+            </button>
+          </div>
+        )}
 
         <div
           onDragOver={e => { e.preventDefault(); setDragging(true) }}
@@ -275,10 +286,7 @@ export default function App() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const proxy = new LocalProxy({
-      geminiApiKey: DEMO_KEY,
-      rateLimit: (DEMO_KEY && !geminiKey) ? { maxPerDay: RATE_LIMIT_PER_DAY } : undefined,
-    })
+    const proxy = new LocalProxy({})
     const assistant = new LocalAssistant({
       proxy,
       llm: { type: 'gemini' },
@@ -363,14 +371,15 @@ export default function App() {
   }
 
   function handlePromptError(err: unknown) {
-    if (err instanceof LocalProxyRateLimitError) {
-      openKeyModal(`You've used the ${RATE_LIMIT_PER_DAY} daily demo requests. Enter your own key to continue.`)
-    } else if ((err as Error).message?.includes('429')) {
+    const msg = (err as Error).message ?? ''
+    if (msg.includes('429')) {
       openKeyModal('The shared demo key has reached its limit. Enter your own key to continue.')
+    } else if (msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('unauthorized')) {
+      openKeyModal('The demo key is unavailable. Please enter your own Gemini API key to continue.')
     } else {
       setMessages(prev => [...prev, {
         id: `e-${Date.now()}`, role: 'assistant',
-        content: `Error: ${(err as Error).message}`,
+        content: `Error: ${msg}`,
       }])
     }
   }
@@ -404,7 +413,7 @@ export default function App() {
     return (
       <>
         {showKeyModal && <KeyModal current={geminiKey} notice={keyModalNotice} onSave={saveKey} onCancel={!keyModalNotice ? () => setShowKeyModal(false) : undefined} />}
-        <DropZone onFile={handleFile} onKeyClick={() => openKeyModal()} />
+        <DropZone onFile={handleFile} onKeyClick={() => openKeyModal()} noKey={!geminiKey} />
       </>
     )
   }

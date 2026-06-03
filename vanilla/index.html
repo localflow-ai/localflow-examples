@@ -47,6 +47,15 @@
           <h1 class="text-fg text-3xl font-bold mb-1.5">LocalFlow <span class="text-primary">AI Demo</span></h1>
           <p class="text-muted text-lg">Metadata-first AI — your data never leaves the browser</p>
         </div>
+        <div id="no-key-warning" class="hidden w-full max-w-[440px] bg-amber-400/10 border border-amber-400/30 rounded-xl px-4 py-3 flex flex-col gap-2">
+          <p class="text-amber-300 text-sm leading-relaxed">
+            This demo requires your own Gemini API key. It will stay in your browser and never be sent to any server.
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" class="underline">Get a free key →</a>
+          </p>
+          <button id="no-key-btn" class="self-start bg-amber-400/20 border border-amber-400/40 text-amber-300 rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer">
+            Set my key
+          </button>
+        </div>
         <div id="drop-zone"
           class="w-full max-w-[440px] border-[1.5px] border-dashed border-white/20 rounded-2xl px-8 py-9 flex flex-col items-center cursor-pointer transition-all duration-150 bg-white/[0.03]">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="oklch(0.63 0 0)" stroke-width="1.5" class="mb-3" id="drop-icon">
