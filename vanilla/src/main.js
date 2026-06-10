@@ -35,6 +35,7 @@ const chatInput     = document.getElementById('chat-input')
 const sendBtn       = document.getElementById('send-btn')
 const emptyPanel    = document.getElementById('empty')
 const resultFrame   = document.getElementById('result-frame')
+const iframeSpinner = document.getElementById('iframe-spinner')
 
 const logo = '/src/logo.webp'
 
@@ -62,7 +63,7 @@ function initAssistant() {
   const proxy = new LocalProxy({})
   assistant = new LocalAssistant({
     proxy,
-    llm: { type: 'gemini' },
+    llm: { protocol: 'gemini' },
     darkMode: true,
     sandboxTheme: {
       extend: {
@@ -350,6 +351,8 @@ function appendThinking() {
 function showResult(srcdoc) {
   emptyPanel.classList.add('hidden')
   resultFrame.classList.remove('hidden')
+  iframeSpinner.classList.remove('hidden')
+  resultFrame.onload = () => iframeSpinner.classList.add('hidden')
   resultFrame.srcdoc = srcdoc
 }
 

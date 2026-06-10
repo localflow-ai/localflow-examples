@@ -11,7 +11,7 @@ Each example provides:
 - A chat interface to ask questions about the data
 - An analysis result rendered in a sandboxed iframe
 
-No server required — the assistant runs entirely in the browser using `LocalProxy` and your own Gemini API key.
+No server required — the assistant runs entirely in the browser using `LocalProxy` and your own LLM API key (Gemini by default; OpenAI and Anthropic are also supported).
 
 ## Examples
 
@@ -20,9 +20,39 @@ No server required — the assistant runs entirely in the browser using `LocalPr
 | React   | React 18 + Vite + TypeScript | [`react/`](./react/) |
 | Vanilla | Plain JS + Vite | [`vanilla/`](./vanilla/) |
 
+## Developing against a local `localflow-core`
+
+By default the examples depend on the published `@localflow/core` npm package.
+To test local changes without publishing, run these commands **once** to wire them together:
+
+```bash
+cd localflow-core
+npm link                     # register local source as a global package
+
+cd localflow-examples/react  # or vanilla
+npm link @localflow/core     # use the local package instead of the published one
+```
+
+Then start both in separate terminals:
+
+```bash
+# Terminal 1
+cd localflow-core && npm run dev   # recompiles on every save
+
+# Terminal 2
+cd localflow-examples/react && npm run dev
+```
+
+To restore the published npm version:
+
+```bash
+cd localflow-examples/react
+npm unlink @localflow/core && npm install
+```
+
 ## Getting started
 
-> **Prerequisites:** Node.js 18+, a [Gemini API key](https://aistudio.google.com/apikey)
+> **Prerequisites:** Node.js 18+, an LLM API key — [Gemini](https://aistudio.google.com/apikey) (default), OpenAI, or Anthropic
 
 Run either example:
 
@@ -38,7 +68,7 @@ npm install
 npm run dev
 ```
 
-Open the URL shown in your terminal, enter your Gemini API key, load a CSV or Excel file, and start asking questions.
+Open the URL shown in your terminal, enter your API key, load a CSV or Excel file, and start asking questions.
 
 ## Building for production
 
@@ -56,7 +86,7 @@ import { LocalProxy, LocalAssistant } from '@localflow/core'
 
 // No server needed — LocalProxy runs entirely in the browser
 const proxy = new LocalProxy()
-const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
+const assistant = new LocalAssistant({ proxy, llm: { protocol: 'gemini' } })
 
 // Your Gemini key — stays in the browser, never sent to any third party
 await assistant.setLlmApiKey('AIza...')
@@ -87,7 +117,7 @@ const proxy = new ProxyClient('https://your-proxy.example.com')
 await proxy.connect('odoo', { url, db, username, password })  // Odoo
 await proxy.connect('public')                                  // anonymous / public session
 
-const assistant = new LocalAssistant({ proxy, llm: { type: 'gemini' } })
+const assistant = new LocalAssistant({ proxy, llm: { protocol: 'gemini' } })
 ```
 
 ## License

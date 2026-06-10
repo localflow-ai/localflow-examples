@@ -278,6 +278,7 @@ export default function App() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [srcdoc, setSrcdoc] = useState<string | null>(null)
+  const [iframeLoading, setIframeLoading] = useState(false)
   const [formula, setFormula] = useState<string | null>(null)
   const [showFormula, setShowFormula] = useState(false)
   const [rows, setRows] = useState<Record<string, unknown>[]>([])
@@ -289,7 +290,7 @@ export default function App() {
     const proxy = new LocalProxy({})
     const assistant = new LocalAssistant({
       proxy,
-      llm: { type: 'gemini' },
+      llm: { protocol: 'gemini' },
       darkMode: true,
       sandboxTheme: {
         extend: {
@@ -359,7 +360,7 @@ export default function App() {
     setPhase('analyzing')
     try {
       const res: AssistantResponse = await assistant.prompt('Show the data')
-      if (res.formula) { setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
+      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
       setMessages(res.answer ? [{ id: 'a-init', role: 'assistant', content: res.answer }] : [])
     } catch (err: unknown) {
       handlePromptError(err)
@@ -392,7 +393,7 @@ export default function App() {
     try {
       const res: AssistantResponse = await assistant.prompt(text)
       setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: 'assistant', content: res.answer }])
-      if (res.formula) { setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
+      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
     } catch (err: unknown) {
       handlePromptError(err)
     } finally {
@@ -530,7 +531,7 @@ export default function App() {
         </div>
 
         {/* Result panel */}
-        <div className="flex-1 overflow-hidden bg-app-bg">
+        <div className="flex-1 overflow-hidden bg-app-bg relative">
           {srcdoc ? (
             <iframe
               key={srcdoc}
@@ -538,10 +539,24 @@ export default function App() {
               className="w-full h-full border-0"
               sandbox="allow-scripts allow-downloads"
               title="Analysis result"
+              onLoad={() => setIframeLoading(false)}
             />
           ) : (
             <div className="h-full flex items-center justify-center text-muted text-sm">
               Ask a question to see the analysis here.
+            </div>
+          )}
+          {iframeLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-app-bg/70 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex gap-2">
+                  {[0, 1, 2].map(i => (
+                    <span key={i} className="w-2.5 h-2.5 rounded-full bg-primary inline-block"
+                      style={{ animation: 'bounce 1.2s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
+                  ))}
+                </div>
+                <p className="text-fg/70 text-sm">Rendering…</p>
+              </div>
             </div>
           )}
         </div>

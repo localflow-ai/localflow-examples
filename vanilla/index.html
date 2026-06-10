@@ -129,12 +129,20 @@
       </div>
 
       <!-- Result panel -->
-      <div class="flex-1 overflow-hidden bg-app-bg">
+      <div class="flex-1 overflow-hidden bg-app-bg relative">
         <div id="empty" class="h-full flex items-center justify-center text-muted text-sm">
           Ask a question to see the analysis here.
         </div>
         <iframe id="result-frame" class="hidden w-full h-full border-0"
           sandbox="allow-scripts allow-downloads" title="Analysis result"></iframe>
+        <div id="iframe-spinner" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-app-bg/70 backdrop-blur-sm">
+          <div class="flex gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-primary inline-block" style="animation:bounce 1.2s ease-in-out infinite;animation-delay:0s"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-primary inline-block" style="animation:bounce 1.2s ease-in-out infinite;animation-delay:0.2s"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-primary inline-block" style="animation:bounce 1.2s ease-in-out infinite;animation-delay:0.4s"></span>
+          </div>
+          <p class="text-fg/70 text-sm">Rendering…</p>
+        </div>
       </div>
     </div>
 
