@@ -136,6 +136,24 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
 }
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
+const PILLARS = [
+  {
+    icon: '🔒',
+    title: 'Privacy by design',
+    body: 'Raw rows never leave your browser. The AI receives only column names and statistics — your data stays entirely local, always.',
+  },
+  {
+    icon: '⚡',
+    title: 'Fixed marginal cost',
+    body: 'Metadata-first means a few hundred tokens per query, regardless of dataset size. No raw data sent, no token waste, fully predictable costs.',
+  },
+  {
+    icon: '🌐',
+    title: 'Any LLM, instant deploy',
+    body: 'Works with Gemini, GPT-4, Claude, or your own endpoint. Full privacy without a local model, GPU, or on-premise infrastructure.',
+  },
+]
+
 function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -148,50 +166,70 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
   }, [onFile])
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-app-bg p-6">
-      <div className="flex flex-col items-center gap-5">
-        <img src={logo} alt="LocalFlow" className="w-16 h-16 rounded-[14px]" />
-        <div className="text-center">
-          <h1 className="text-fg text-3xl font-bold mb-1.5">
-            LocalFlow <span className="text-primary">AI Demo</span>
-          </h1>
-          <p className="text-muted text-lg">Metadata-first AI — your data never leaves the browser</p>
-        </div>
+    <div className="min-h-dvh flex flex-col bg-app-bg">
 
+      {/* ── Hero ── */}
+      <div className="flex flex-col items-center pt-8 pb-6 px-8 text-center">
+        <img src={logo} alt="LocalFlow" className="w-16 h-16 rounded-2xl mb-4" />
+        <h1 className="text-fg text-5xl font-bold mb-2">
+          LocalFlow <span className="text-primary">AI Demo</span>
+        </h1>
+        <p className="text-muted text-xl max-w-xl leading-relaxed">
+          Drop a spreadsheet and ask questions about your data in plain language —
+          without ever sending it to a server.
+        </p>
+      </div>
+
+      {/* ── Pillars ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-8 pb-6 w-full max-w-4xl mx-auto">
+        {PILLARS.map(({ icon, title, body }) => (
+          <div key={title} className="bg-card border border-white/10 rounded-2xl p-4 flex flex-col gap-2">
+            <span className="text-3xl">{icon}</span>
+            <h3 className="text-fg text-lg font-semibold">{title}</h3>
+            <p className="text-muted text-base leading-relaxed">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Upload ── */}
+      <div className="flex flex-col items-center px-8 pb-5">
         <div
           onDragOver={e => { e.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
-          className={`w-full max-w-[440px] border-[1.5px] border-dashed rounded-2xl px-8 py-9 flex flex-col items-center cursor-pointer transition-all duration-150 ${
+          className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
             dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
           }`}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
             stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
             strokeWidth="1.5" className="mb-3">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          <p className="text-fg text-base font-medium mb-1.5 text-center">Drop a CSV or Excel file here</p>
-          <p className="text-muted text-sm text-center leading-relaxed max-w-xs mb-4">
-            Your data is loaded locally and never sent to any server.
-            Only column names and statistics are shared with the AI.
-          </p>
+          <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
+          <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
           <button onClick={() => inputRef.current?.click()}
-            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-lg px-5 py-2 text-base font-semibold cursor-pointer">
+            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
             Browse files
           </button>
           <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
         </div>
-
-        <p className="text-muted/70 text-sm text-center">
-          Supports CSV and Excel (.xlsx, .xls) · Powered by{' '}
-          <a href="https://localflow.fr" target="_blank" rel="noreferrer" className="text-primary/80 underline">LocalFlow</a>
-          {genaiLimit != null && ` · ${genaiLimit} AI requests/day per IP`}
-        </p>
       </div>
+
+      {/* ── Footer ── */}
+      <div className="text-center text-sm text-muted/50 pb-6 px-8 flex flex-col gap-1.5">
+        {genaiLimit != null && <span>{genaiLimit} AI requests/day per IP on this demo</span>}
+        <span>
+          Powered by{' '}
+          <a href="https://localflow.fr" target="_blank" rel="noreferrer" className="text-primary/70 underline">LocalFlow</a>
+          {' · '}
+          <a href="https://localflow.fr/contact" target="_blank" rel="noreferrer" className="text-primary/70 underline">Contact us</a>
+        </span>
+      </div>
+
     </div>
   )
 }
