@@ -307,7 +307,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
               ))}
             </div>
             <button onClick={() => setView('upload')}
-              className="mt-4 bg-transparent border-none text-muted text-sm cursor-pointer hover:text-fg/70 underline decoration-white/20">
+              className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
               ← Use your own file
             </button>
           </>
