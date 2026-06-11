@@ -136,7 +136,7 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
 }
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
-function DropZone({ onFile }: { onFile: (f: File) => void }) {
+function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -189,7 +189,7 @@ function DropZone({ onFile }: { onFile: (f: File) => void }) {
         <p className="text-muted/70 text-sm text-center">
           Supports CSV and Excel (.xlsx, .xls) · Powered by{' '}
           <a href="https://localflow.fr" target="_blank" rel="noreferrer" className="text-primary/80 underline">LocalFlow</a>
-          {' '}· 10 AI requests/day per IP
+          {genaiLimit != null && ` · ${genaiLimit} AI requests/day per IP`}
         </p>
       </div>
     </div>
@@ -199,6 +199,7 @@ function DropZone({ onFile }: { onFile: (f: File) => void }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [phase, setPhase] = useState<Phase>('connecting')
+  const [genaiLimit, setGenaiLimit] = useState<number | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [rowCount, setRowCount] = useState(0)
   const [messages, setMessages] = useState<Message[]>([])
@@ -214,6 +215,11 @@ export default function App() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    fetch(`${DEMO_PROXY_URL}/public/config`)
+      .then(r => r.json())
+      .then(cfg => setGenaiLimit(cfg.publicSessions?.rateLimits?.genaiPerIpPerDay ?? null))
+      .catch(() => {})
+
     const proxy = new ProxyClient(DEMO_PROXY_URL)
     proxy.connect('public').then(() => {
       const assistant = new LocalAssistant({
@@ -330,7 +336,7 @@ export default function App() {
   }
 
   if (phase === 'idle') {
-    return <DropZone onFile={handleFile} />
+    return <DropZone onFile={handleFile} genaiLimit={genaiLimit} />
   }
 
   if (phase === 'parsing') {
