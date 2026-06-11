@@ -7,6 +7,7 @@ import { marked } from 'marked'
 import { LocalAssistant, ProxyClient } from '@localflow/core'
 import type { AssistantResponse } from '@localflow/core'
 import logo from './logo.webp'
+import { i18n } from './i18n'
 
 const DEMO_PROXY_URL = import.meta.env.VITE_PROXY_URL ?? 'https://backoffice.daquota.io/demo'
 const DEMO_MODEL_ID  = import.meta.env.VITE_MODEL_ID  ?? 'gemini-flash'
@@ -80,10 +81,10 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
     <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-surface border border-white/15 rounded-2xl p-5 w-[min(760px,92vw)] max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-fg text-sm font-semibold">Generated formula</span>
+          <span className="text-fg text-sm font-semibold">{i18n.formula.title}</span>
           <div className="flex gap-2">
             <button onClick={copy} className="bg-transparent text-muted border border-white/15 rounded-lg px-3 py-1.5 text-xs cursor-pointer">
-              {copied ? '✓ Copied' : 'Copy'}
+              {copied ? i18n.formula.copied : i18n.formula.copy}
             </button>
             <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer">✕</button>
           </div>
@@ -103,7 +104,7 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
     <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-surface border border-white/15 rounded-2xl p-5 w-[min(900px,95vw)] max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-fg text-sm font-semibold">📄 {fileName} — {rows.length} rows</span>
+          <span className="text-fg text-sm font-semibold">📄 {fileName} — {i18n.chat.rowCount(rows.length)}</span>
           <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer">✕</button>
         </div>
         <div className="overflow-auto flex-1">
@@ -137,58 +138,18 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
 const PILLARS = [
-  {
-    icon: '🔒',
-    title: 'Privacy by design',
-    body: 'Raw rows never leave your browser. The AI receives only column names and statistics — your data stays entirely local, always.',
-  },
-  {
-    icon: '⚡',
-    title: 'Fixed marginal cost',
-    body: 'Metadata-first means a few hundred tokens per query, regardless of dataset size. No raw data sent, no token waste, fully predictable costs.',
-  },
-  {
-    icon: '🌐',
-    title: 'Any LLM, instant deploy',
-    body: 'Works with Gemini, GPT-4, Claude, or your own endpoint. Full privacy without a local model, GPU, or on-premise infrastructure.',
-  },
+  { icon: '🔒', ...i18n.pillars[0] },
+  { icon: '⚡', ...i18n.pillars[1] },
+  { icon: '🌐', ...i18n.pillars[2] },
 ]
 
 const BASE = import.meta.env.BASE_URL
 
 const SAMPLE_DATASETS = [
-  {
-    icon: '🌦️',
-    title: 'Seattle Weather',
-    description: 'Daily precipitation, temperature, wind and weather type recorded in Seattle over 4 years.',
-    rows: 1461,
-    file: 'seattle-weather.csv',
-    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/seattle-weather.csv',
-  },
-  {
-    icon: '🦅',
-    title: 'Bird Strikes',
-    description: 'FAA aviation wildlife strike database: aircraft, airline, species, phase of flight, damage and repair cost.',
-    rows: 9999,
-    file: 'birdstrikes.csv',
-    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/birdstrikes.csv',
-  },
-  {
-    icon: '🌍',
-    title: 'Natural Disasters',
-    description: 'Global disaster deaths by type and year from 1900 to 2020 — earthquakes, floods, droughts and more.',
-    rows: 802,
-    file: 'disasters.csv',
-    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/disasters.csv',
-  },
-  {
-    icon: '📊',
-    title: 'Gapminder',
-    description: 'Income, life expectancy and population for 188 countries — the classic global development economics dataset.',
-    rows: 188,
-    file: 'gapminder-health-income.csv',
-    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/gapminder-health-income.csv',
-  },
+  { icon: '🌦️', rows: 1461, file: 'seattle-weather.csv', source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/seattle-weather.csv', ...i18n.samples[0] },
+  { icon: '🦅', rows: 9999, file: 'birdstrikes.csv',      source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/birdstrikes.csv',      ...i18n.samples[1] },
+  { icon: '🌍', rows: 802,  file: 'disasters.csv',        source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/disasters.csv',        ...i18n.samples[2] },
+  { icon: '📊', rows: 188,  file: 'gapminder-health-income.csv', source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/gapminder-health-income.csv', ...i18n.samples[3] },
 ]
 
 function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
@@ -225,10 +186,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
         <h1 className="text-fg text-5xl font-bold mb-2">
           LocalFlow <span className="text-primary">AI Demo</span>
         </h1>
-        <p className="text-muted text-xl max-w-xl leading-relaxed">
-          Drop a spreadsheet and ask questions about your data in plain language —
-          without ever sending it to a server.
-        </p>
+        <p className="text-muted text-xl max-w-xl leading-relaxed">{i18n.hero.subtitle}</p>
       </div>
 
       {/* ── Pillars ── */}
@@ -262,18 +220,18 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
-              <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
-              <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
+              <p className="text-fg text-lg font-medium mb-1 text-center">{i18n.upload.dropMessage}</p>
+              <p className="text-muted text-base text-center mb-4">{i18n.upload.formats}</p>
               <button onClick={() => inputRef.current?.click()}
                 className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-5 py-2 text-sm font-semibold cursor-pointer">
-                Browse files
+                {i18n.upload.browse}
               </button>
               <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
             </div>
             <button onClick={() => setView('samples')}
               className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
-              Or try a sample dataset →
+              {i18n.upload.trySample}
             </button>
           </>
         ) : (
@@ -291,7 +249,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
                       <span className="text-2xl">{loadingSample === ds.file ? '⏳' : ds.icon}</span>
                       <span className="text-fg text-base font-semibold">{ds.title}</span>
                     </div>
-                    <span className="text-muted text-xs shrink-0">{ds.rows.toLocaleString()} rows</span>
+                    <span className="text-muted text-xs shrink-0">{i18n.chat.rowCount(ds.rows)}</span>
                   </div>
                   <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
                   <a
@@ -308,7 +266,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
             </div>
             <button onClick={() => setView('upload')}
               className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
-              ← Use your own file
+              {i18n.upload.useOwn}
             </button>
           </>
         )}
@@ -317,12 +275,12 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
 
       {/* ── Footer ── */}
       <div className="text-center text-sm text-muted/50 pb-6 px-8 flex flex-col gap-1.5">
-        {genaiLimit != null && <span>{genaiLimit} AI requests/day per IP on this demo</span>}
+        {genaiLimit != null && <span>{i18n.footer.rateLimit(genaiLimit)}</span>}
         <span>
-          Powered by{' '}
+          {i18n.footer.poweredBy}{' '}
           <a href="https://localflow.fr" target="_blank" rel="noreferrer" className="text-primary/70 underline">LocalFlow</a>
           {' · '}
-          <a href="https://localflow.fr/contact" target="_blank" rel="noreferrer" className="text-primary/70 underline">Contact us</a>
+          <a href="https://localflow.fr/contact" target="_blank" rel="noreferrer" className="text-primary/70 underline">{i18n.footer.contact}</a>
         </span>
       </div>
 
@@ -385,7 +343,7 @@ export default function App() {
       assistantRef.current = assistant
       setPhase('idle')
     }).catch(() => {
-      setMessages([{ id: 'conn-err', role: 'assistant', content: 'Could not connect to the demo server. Please try again later.' }])
+      setMessages([{ id: 'conn-err', role: 'assistant', content: i18n.errors.connection }])
       setPhase('idle')
     })
   }, [])
@@ -433,13 +391,13 @@ export default function App() {
     const msg = (err as Error).message ?? ''
     let content: string
     if (msg.includes('429')) {
-      content = "You've reached the demo limit (10 AI requests/day). Come back tomorrow, or host your own proxy with your own API key!"
+      content = i18n.errors.rateLimit
     } else if (msg.includes('403') && msg.toLowerCase().includes('disabled')) {
-      content = 'The demo is temporarily disabled. Please try again later.'
+      content = i18n.errors.disabled
     } else if (msg.includes('500') || msg.includes('suspended') || msg.includes('Permission denied')) {
-      content = 'The demo AI service is temporarily unavailable. Please try again later.'
+      content = i18n.errors.unavailable
     } else {
-      content = `Error: ${msg}`
+      content = i18n.errors.generic(msg)
     }
     setMessages(prev => [...prev, { id: `e-${Date.now()}`, role: 'assistant', content }])
   }
@@ -470,7 +428,7 @@ export default function App() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   if (phase === 'connecting') {
-    return <Spinner label="Connecting to demo server…" />
+    return <Spinner label={i18n.spinner.connecting} />
   }
 
   if (phase === 'idle') {
@@ -478,11 +436,11 @@ export default function App() {
   }
 
   if (phase === 'parsing') {
-    return <Spinner label="Loading data in the browser…" sublabel="Your file is being read locally. Nothing is sent anywhere yet." />
+    return <Spinner label={i18n.spinner.parsing} sublabel={i18n.spinner.parsingSubtitle} />
   }
 
   if (phase === 'analyzing') {
-    return <Spinner label="Analyzing with metadata-first AI…" sublabel="Only column names and statistics are shared with the AI — your actual data never leaves the browser." />
+    return <Spinner label={i18n.spinner.analyzing} sublabel={i18n.spinner.analyzingSubtitle} />
   }
 
   // ready
@@ -499,13 +457,13 @@ export default function App() {
             onClick={() => setMobileView('chat')}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${mobileView === 'chat' ? 'text-primary border-b-2 border-primary' : 'text-muted'}`}
           >
-            Chat
+            {i18n.chat.tabChat}
           </button>
           <button
             onClick={() => setMobileView('chart')}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${mobileView === 'chart' ? 'text-primary border-b-2 border-primary' : 'text-muted'}`}
           >
-            {srcdoc ? 'Result ●' : 'Result'}
+            {srcdoc ? `${i18n.chat.tabResult} ●` : i18n.chat.tabResult}
           </button>
         </div>
 
@@ -518,7 +476,7 @@ export default function App() {
               <span className="font-semibold text-sm text-fg">LocalFlow</span>
             </div>
             <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null) }}
-              title="Load a new file"
+              title={i18n.chat.loadNewFile}
               className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
               ↺
             </button>
@@ -526,13 +484,13 @@ export default function App() {
 
           <div className="flex items-center px-3.5 py-2 border-b border-white/15 bg-white/[0.025] gap-1.5">
             <span className="text-primary">📄</span>
-            <button onClick={() => setShowData(true)} title="View raw data"
+            <button onClick={() => setShowData(true)} title={i18n.chat.viewRawData}
               className="flex-1 bg-transparent border-none p-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap text-sm text-primary text-left underline decoration-primary/40">
               {fileName}
             </button>
-            <span className="text-muted text-xs shrink-0 mr-1.5">{rowCount} rows</span>
+            <span className="text-muted text-xs shrink-0 mr-1.5">{i18n.chat.rowCount(rowCount)}</span>
             {formula && (
-              <button onClick={() => setShowFormula(true)} title="Inspect generated formula"
+              <button onClick={() => setShowFormula(true)} title={i18n.chat.inspectFormula}
                 className="bg-transparent border-none cursor-pointer text-[11px] text-fg/55 font-mono font-bold hover:text-fg/80">
                 {'</>'}
               </button>
@@ -541,7 +499,7 @@ export default function App() {
 
           <div className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-2">
             {messages.length === 0 && (
-              <p className="text-muted text-sm leading-relaxed py-1">Ask a question about your data.</p>
+              <p className="text-muted text-sm leading-relaxed py-1">{i18n.chat.empty}</p>
             )}
             {messages.map(msg => (
               <div key={msg.id} className={`flex items-end gap-1.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -584,7 +542,7 @@ export default function App() {
                 value={input}
                 rows={1}
                 disabled={loading}
-                placeholder="Ask something about your data…"
+                placeholder={i18n.chat.placeholder}
                 className="flex-1 bg-white/[0.06] text-fg border border-white/15 rounded-lg px-2.5 py-2 text-sm resize-none outline-none font-[inherit] min-h-[34px] max-h-[120px] disabled:opacity-50"
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
@@ -594,7 +552,7 @@ export default function App() {
                 ➤
               </button>
             </div>
-            <p className="mt-1.5 text-center text-[11px] text-muted/70">Your data stays local — only column names and statistics are shared with the AI.</p>
+            <p className="mt-1.5 text-center text-[11px] text-muted/70">{i18n.chat.disclaimer}</p>
           </div>
         </div>
 
@@ -611,7 +569,7 @@ export default function App() {
             />
           ) : (
             <div className="h-full flex items-center justify-center text-muted text-sm">
-              Ask a question to see the analysis here.
+              {i18n.chat.noResult}
             </div>
           )}
           {iframeLoading && (
@@ -623,7 +581,7 @@ export default function App() {
                       style={{ animation: 'bounce 1.2s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
                   ))}
                 </div>
-                <p className="text-fg/70 text-sm">Rendering…</p>
+                <p className="text-fg/70 text-sm">{i18n.spinner.rendering}</p>
               </div>
             </div>
           )}
