@@ -272,7 +272,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
                 onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
             </div>
             <button onClick={() => setView('samples')}
-              className="mt-4 bg-transparent border-none text-fg text-lg font-medium cursor-pointer hover:text-primary transition-colors">
+              className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
               Or try a sample dataset →
             </button>
           </>
