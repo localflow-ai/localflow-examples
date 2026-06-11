@@ -241,6 +241,34 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
         ))}
       </div>
 
+      {/* ── Upload ── */}
+      <div className="flex flex-col items-center px-8 pb-5">
+        <div
+          onDragOver={e => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
+            dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
+          }`}
+        >
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+            stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
+            strokeWidth="1.5" className="mb-3">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
+          <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
+          <button onClick={() => inputRef.current?.click()}
+            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
+            Browse files
+          </button>
+          <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
+        </div>
+      </div>
+
       {/* ── Sample datasets ── */}
       <div className="px-8 pb-6 w-full max-w-4xl mx-auto">
         <p className="text-muted text-sm font-medium mb-3 uppercase tracking-wide">Or try a sample dataset</p>
@@ -271,34 +299,6 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
               </a>
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* ── Upload ── */}
-      <div className="flex flex-col items-center px-8 pb-5">
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true) }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-          className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
-            dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
-          }`}
-        >
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-            stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
-            strokeWidth="1.5" className="mb-3">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
-          <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
-          <button onClick={() => inputRef.current?.click()}
-            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
-            Browse files
-          </button>
-          <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
         </div>
       </div>
 
