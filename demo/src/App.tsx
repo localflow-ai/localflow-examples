@@ -265,15 +265,15 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
               <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
               <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
               <button onClick={() => inputRef.current?.click()}
-                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
+                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-5 py-2 text-sm font-semibold cursor-pointer">
                 Browse files
               </button>
               <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
             </div>
             <button onClick={() => setView('samples')}
-              className="mt-4 bg-transparent border-none text-muted text-sm cursor-pointer hover:text-fg/70 underline decoration-white/20">
-              Or try a sample dataset
+              className="mt-4 bg-transparent border-none text-fg text-lg font-medium cursor-pointer hover:text-primary transition-colors">
+              Or try a sample dataset →
             </button>
           </>
         ) : (
