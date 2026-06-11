@@ -166,7 +166,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
   }, [onFile])
 
   return (
-    <div className="min-h-dvh flex flex-col bg-app-bg">
+    <div className="flex-1 overflow-y-auto flex flex-col bg-app-bg">
 
       {/* ── Hero ── */}
       <div className="flex flex-col items-center pt-8 pb-6 px-8 text-center">
@@ -237,6 +237,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [phase, setPhase] = useState<Phase>('connecting')
+  const [mobileView, setMobileView] = useState<'chat' | 'chart'>('chat')
   const [genaiLimit, setGenaiLimit] = useState<number | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [rowCount, setRowCount] = useState(0)
@@ -313,6 +314,7 @@ export default function App() {
     setFileName(file.name)
     setRowCount(rows.length)
     setRows(rows)
+    setMobileView('chat')
     assistant.clearHistory()
     assistant.clearDatasets?.()
     assistant.addDataset('data', rows)
@@ -320,7 +322,7 @@ export default function App() {
     setPhase('analyzing')
     try {
       const res: AssistantResponse = await assistant.prompt('Show the data')
-      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
+      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula); setMobileView('chart') }
       setMessages(res.answer ? [{ id: 'a-init', role: 'assistant', content: res.answer }] : [])
     } catch (err: unknown) {
       handlePromptError(err)
@@ -354,7 +356,7 @@ export default function App() {
     try {
       const res: AssistantResponse = await assistant.prompt(text)
       setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: 'assistant', content: res.answer }])
-      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula) }
+      if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula); setMobileView('chart') }
     } catch (err: unknown) {
       handlePromptError(err)
     } finally {
@@ -393,9 +395,27 @@ export default function App() {
       {showFormula && formula && <FormulaModal formula={formula} onClose={() => setShowFormula(false)} />}
       {showData && <DataModal rows={rows} fileName={fileName ?? ''} onClose={() => setShowData(false)} />}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 overflow-hidden">
+
+        {/* Mobile tab bar */}
+        <div className="flex md:hidden shrink-0 border-b border-white/15 bg-sidebar">
+          <button
+            onClick={() => setMobileView('chat')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${mobileView === 'chat' ? 'text-primary border-b-2 border-primary' : 'text-muted'}`}
+          >
+            Chat
+          </button>
+          <button
+            onClick={() => setMobileView('chart')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${mobileView === 'chart' ? 'text-primary border-b-2 border-primary' : 'text-muted'}`}
+          >
+            {srcdoc ? 'Chart ●' : 'Chart'}
+          </button>
+        </div>
+
+        <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-[336px] flex flex-col border-r border-white/15 bg-sidebar">
+        <div className={`flex flex-col border-r border-white/15 bg-sidebar w-full md:w-[336px] ${mobileView === 'chart' ? 'hidden md:flex' : 'flex'}`}>
           <div className="flex justify-between items-center px-3.5 py-3 border-b border-white/15">
             <div className="flex items-center gap-2">
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
@@ -483,7 +503,7 @@ export default function App() {
         </div>
 
         {/* Result panel */}
-        <div className="flex-1 overflow-hidden bg-app-bg relative">
+        <div className={`flex-1 overflow-hidden bg-app-bg relative ${mobileView === 'chat' ? 'hidden md:block' : 'block'}`}>
           {srcdoc ? (
             <iframe
               key={srcdoc}
@@ -512,7 +532,8 @@ export default function App() {
             </div>
           )}
         </div>
-      </div>
+        </div>{/* inner flex row */}
+      </div>{/* outer flex col */}
     </>
   )
 }
