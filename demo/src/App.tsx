@@ -375,7 +375,7 @@ export default function App() {
 
     setPhase('analyzing')
     try {
-      const res: AssistantResponse = await assistant.prompt('Show the data')
+      const res: AssistantResponse = await assistant.prompt(i18n.chat.initialPrompt)
       if (res.formula) { setIframeLoading(true); setSrcdoc(assistant.buildSandboxDocument(res.formula)); setFormula(res.formula); setMobileView('chart') }
       setMessages(res.answer ? [{ id: 'a-init', role: 'assistant', content: res.answer }] : [])
     } catch (err: unknown) {

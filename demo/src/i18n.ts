@@ -55,6 +55,7 @@ const en = {
     contact: 'Contact us',
   },
   chat: {
+    initialPrompt: 'Visualise this data comprehensively and tell me what kinds of analyses would be most insightful.',
     empty: 'Ask a question about your data.',
     placeholder: 'Ask something about your data…',
     disclaimer: 'Your data stays local — only column names and statistics are shared with the AI.',
@@ -139,6 +140,7 @@ const fr: I18n = {
     contact: 'Nous contacter',
   },
   chat: {
+    initialPrompt: 'Visualise ces données de façon complète et dis-moi quelles analyses seraient les plus pertinentes.',
     empty: 'Posez une question sur vos données.',
     placeholder: 'Posez une question sur vos données…',
     disclaimer: "Vos données restent locales — seuls les noms de colonnes et les statistiques sont partagés avec l'IA.",
