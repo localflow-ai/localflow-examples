@@ -194,6 +194,7 @@ const SAMPLE_DATASETS = [
 function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
   const [dragging, setDragging] = useState(false)
   const [loadingSample, setLoadingSample] = useState<string | null>(null)
+  const [view, setView] = useState<'upload' | 'samples'>('upload')
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function loadSample(dataset: typeof SAMPLE_DATASETS[0]) {
@@ -241,65 +242,77 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
         ))}
       </div>
 
-      {/* ── Upload ── */}
-      <div className="flex flex-col items-center px-8 pb-5">
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true) }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-          className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
-            dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
-          }`}
-        >
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-            stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
-            strokeWidth="1.5" className="mb-3">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
-          <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
-          <button onClick={() => inputRef.current?.click()}
-            className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
-            Browse files
-          </button>
-          <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
-        </div>
-      </div>
+      {/* ── Upload / Samples (toggled) ── */}
+      <div className="flex flex-col items-center px-8 pb-6 w-full max-w-4xl mx-auto">
 
-      {/* ── Sample datasets ── */}
-      <div className="px-8 pb-6 w-full max-w-4xl mx-auto">
-        <p className="text-muted text-sm font-medium mb-3 uppercase tracking-wide">Or try a sample dataset</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {SAMPLE_DATASETS.map(ds => (
-            <button
-              key={ds.file}
-              onClick={() => loadSample(ds)}
-              disabled={!!loadingSample}
-              className="bg-card border border-white/10 rounded-2xl p-4 flex flex-col gap-1.5 text-left cursor-pointer hover:border-primary/40 hover:bg-card/80 transition-colors disabled:opacity-60 disabled:cursor-wait"
+        {view === 'upload' ? (
+          <>
+            <div
+              onDragOver={e => { e.preventDefault(); setDragging(true) }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
+                dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
+              }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{loadingSample === ds.file ? '⏳' : ds.icon}</span>
-                  <span className="text-fg text-base font-semibold">{ds.title}</span>
-                </div>
-                <span className="text-muted text-xs shrink-0">{ds.rows.toLocaleString()} rows</span>
-              </div>
-              <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
-              <a
-                href={ds.source}
-                target="_blank"
-                rel="noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start"
-              >
-                ↓ raw data
-              </a>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+                stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
+                strokeWidth="1.5" className="mb-3">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <p className="text-fg text-lg font-medium mb-1 text-center">Drop a CSV or Excel file here</p>
+              <p className="text-muted text-base text-center mb-4">Supports .csv, .xlsx, .xls</p>
+              <button onClick={() => inputRef.current?.click()}
+                className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-7 py-3 text-lg font-semibold cursor-pointer">
+                Browse files
+              </button>
+              <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
+            </div>
+            <button onClick={() => setView('samples')}
+              className="mt-4 bg-transparent border-none text-muted text-sm cursor-pointer hover:text-fg/70 underline decoration-white/20">
+              Or try a sample dataset
             </button>
-          ))}
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              {SAMPLE_DATASETS.map(ds => (
+                <button
+                  key={ds.file}
+                  onClick={() => loadSample(ds)}
+                  disabled={!!loadingSample}
+                  className="bg-card border border-white/10 rounded-2xl p-4 flex flex-col gap-1.5 text-left cursor-pointer hover:border-primary/40 hover:bg-card/80 transition-colors disabled:opacity-60 disabled:cursor-wait"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{loadingSample === ds.file ? '⏳' : ds.icon}</span>
+                      <span className="text-fg text-base font-semibold">{ds.title}</span>
+                    </div>
+                    <span className="text-muted text-xs shrink-0">{ds.rows.toLocaleString()} rows</span>
+                  </div>
+                  <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
+                  <a
+                    href={ds.source}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start"
+                  >
+                    ↓ raw data
+                  </a>
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setView('upload')}
+              className="mt-4 bg-transparent border-none text-muted text-sm cursor-pointer hover:text-fg/70 underline decoration-white/20">
+              ← Use your own file
+            </button>
+          </>
+        )}
+
       </div>
 
       {/* ── Footer ── */}
