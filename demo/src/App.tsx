@@ -286,7 +286,7 @@ export default function App() {
       setMessages(res.answer ? [{ id: 'a-init', role: 'assistant', content: res.answer }] : [])
     } catch (err: unknown) {
       handlePromptError(err)
-      setPhase('idle')
+      setPhase('ready')
       return
     }
 
@@ -300,6 +300,8 @@ export default function App() {
       content = "You've reached the demo limit (10 AI requests/day). Come back tomorrow, or host your own proxy with your own API key!"
     } else if (msg.includes('403') && msg.toLowerCase().includes('disabled')) {
       content = 'The demo is temporarily disabled. Please try again later.'
+    } else if (msg.includes('500') || msg.includes('suspended') || msg.includes('Permission denied')) {
+      content = 'The demo AI service is temporarily unavailable. Please try again later.'
     } else {
       content = `Error: ${msg}`
     }
