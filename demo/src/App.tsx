@@ -409,7 +409,7 @@ export default function App() {
             onClick={() => setMobileView('chart')}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${mobileView === 'chart' ? 'text-primary border-b-2 border-primary' : 'text-muted'}`}
           >
-            {srcdoc ? 'Chart ●' : 'Chart'}
+            {srcdoc ? 'Result ●' : 'Result'}
           </button>
         </div>
 
