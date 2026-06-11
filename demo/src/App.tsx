@@ -154,9 +154,59 @@ const PILLARS = [
   },
 ]
 
+const BASE = import.meta.env.BASE_URL
+
+const SAMPLE_DATASETS = [
+  {
+    icon: '🌦️',
+    title: 'Seattle Weather',
+    description: 'Daily precipitation, temperature, wind and weather type recorded in Seattle over 4 years.',
+    rows: 1461,
+    file: 'seattle-weather.csv',
+    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/seattle-weather.csv',
+  },
+  {
+    icon: '🦅',
+    title: 'Bird Strikes',
+    description: 'FAA aviation wildlife strike database: aircraft, airline, species, phase of flight, damage and repair cost.',
+    rows: 9999,
+    file: 'birdstrikes.csv',
+    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/birdstrikes.csv',
+  },
+  {
+    icon: '🌍',
+    title: 'Natural Disasters',
+    description: 'Global disaster deaths by type and year from 1900 to 2020 — earthquakes, floods, droughts and more.',
+    rows: 802,
+    file: 'disasters.csv',
+    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/disasters.csv',
+  },
+  {
+    icon: '📊',
+    title: 'Gapminder',
+    description: 'Income, life expectancy and population for 188 countries — the classic global development economics dataset.',
+    rows: 188,
+    file: 'gapminder-health-income.csv',
+    source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/gapminder-health-income.csv',
+  },
+]
+
 function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
   const [dragging, setDragging] = useState(false)
+  const [loadingSample, setLoadingSample] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  async function loadSample(dataset: typeof SAMPLE_DATASETS[0]) {
+    if (loadingSample) return
+    setLoadingSample(dataset.file)
+    try {
+      const res = await fetch(`${BASE}datasets/${dataset.file}`)
+      const blob = await res.blob()
+      onFile(new File([blob], dataset.file, { type: 'text/csv' }))
+    } finally {
+      setLoadingSample(null)
+    }
+  }
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -189,6 +239,39 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
             <p className="text-muted text-base leading-relaxed">{body}</p>
           </div>
         ))}
+      </div>
+
+      {/* ── Sample datasets ── */}
+      <div className="px-8 pb-6 w-full max-w-4xl mx-auto">
+        <p className="text-muted text-sm font-medium mb-3 uppercase tracking-wide">Or try a sample dataset</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SAMPLE_DATASETS.map(ds => (
+            <button
+              key={ds.file}
+              onClick={() => loadSample(ds)}
+              disabled={!!loadingSample}
+              className="bg-card border border-white/10 rounded-2xl p-4 flex flex-col gap-1.5 text-left cursor-pointer hover:border-primary/40 hover:bg-card/80 transition-colors disabled:opacity-60 disabled:cursor-wait"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{loadingSample === ds.file ? '⏳' : ds.icon}</span>
+                  <span className="text-fg text-base font-semibold">{ds.title}</span>
+                </div>
+                <span className="text-muted text-xs shrink-0">{ds.rows.toLocaleString()} rows</span>
+              </div>
+              <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
+              <a
+                href={ds.source}
+                target="_blank"
+                rel="noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start"
+              >
+                ↓ raw data
+              </a>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Upload ── */}
