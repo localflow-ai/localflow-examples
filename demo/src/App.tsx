@@ -79,7 +79,7 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
 
   return (
     <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-surface border border-white/15 rounded-2xl p-5 w-[min(760px,92vw)] max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface sm:border sm:border-white/15 sm:rounded-2xl p-5 w-full h-full sm:w-[min(760px,92vw)] sm:h-auto sm:max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
           <span className="text-fg text-sm font-semibold">{i18n.formula.title}</span>
           <div className="flex gap-2">
@@ -112,7 +112,7 @@ function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
     : i18n.chat.rowCount(rows.length)
   return (
     <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-surface border border-white/15 rounded-2xl p-5 w-[min(900px,95vw)] max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface sm:border sm:border-white/15 sm:rounded-2xl p-5 w-full h-full sm:w-[min(900px,95vw)] sm:h-auto sm:max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
           <span className="text-fg text-sm font-semibold">{icon ?? '📄'} {fileName} — {rowLabel}</span>
           <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer">✕</button>
