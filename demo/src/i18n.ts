@@ -48,6 +48,7 @@ const en = {
     browse: 'Browse files',
     trySample: 'Or try a sample dataset →',
     useOwn: '← Use your own file',
+    columns: (n: number) => `${n} columns`,
   },
   footer: {
     rateLimit: (n: number) => `${n} AI requests/day per IP on this demo`,
@@ -133,6 +134,7 @@ const fr: I18n = {
     browse: 'Parcourir',
     trySample: 'Ou essayez un jeu de données exemple →',
     useOwn: '← Utiliser votre propre fichier',
+    columns: (n: number) => `${n} colonnes`,
   },
   footer: {
     rateLimit: (n: number) => `${n} requêtes IA par jour et par IP sur cette démo`,

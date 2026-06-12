@@ -142,17 +142,35 @@ const PILLARS = i18n.pillars
 const BASE = import.meta.env.BASE_URL
 
 const SAMPLE_DATASETS = [
-  { icon: '🌦️', rows: 1461, file: 'seattle-weather.csv', source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/seattle-weather.csv', ...i18n.samples[0] },
-  { icon: '🦅', rows: 9999, file: 'birdstrikes.csv',      source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/birdstrikes.csv',      ...i18n.samples[1] },
-  { icon: '🌍', rows: 802,  file: 'disasters.csv',        source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/disasters.csv',        ...i18n.samples[2] },
-  { icon: '📊', rows: 188,  file: 'gapminder-health-income.csv', source: 'https://raw.githubusercontent.com/vega/vega-datasets/main/data/gapminder-health-income.csv', ...i18n.samples[3] },
+  { icon: '🌦️', rows: 1461, cols: 6,  file: 'seattle-weather.csv',        ...i18n.samples[0] },
+  { icon: '🦅', rows: 9999, cols: 14, file: 'birdstrikes.csv',             ...i18n.samples[1] },
+  { icon: '🌍', rows: 802,  cols: 3,  file: 'disasters.csv',               ...i18n.samples[2] },
+  { icon: '📊', rows: 188,  cols: 5,  file: 'gapminder-health-income.csv', ...i18n.samples[3] },
 ]
 
 function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
   const [dragging, setDragging] = useState(false)
   const [loadingSample, setLoadingSample] = useState<string | null>(null)
   const [view, setView] = useState<'upload' | 'samples'>('upload')
+  const [previewRows, setPreviewRows] = useState<Record<string, unknown>[] | null>(null)
+  const [previewTitle, setPreviewTitle] = useState('')
+  const [previewLoading, setPreviewLoading] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  async function openPreview(ds: typeof SAMPLE_DATASETS[0], e: React.MouseEvent) {
+    e.stopPropagation()
+    if (previewLoading) return
+    setPreviewLoading(ds.file)
+    try {
+      const res = await fetch(`${BASE}datasets/${ds.file}`)
+      const blob = await res.blob()
+      const rows = await parseFile(new File([blob], ds.file, { type: 'text/csv' }))
+      setPreviewTitle(ds.title)
+      setPreviewRows(rows.slice(0, 100))
+    } finally {
+      setPreviewLoading(null)
+    }
+  }
 
   async function loadSample(dataset: typeof SAMPLE_DATASETS[0]) {
     if (loadingSample) return
@@ -237,6 +255,9 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
           </>
         ) : (
           <>
+            {previewRows && (
+              <DataModal rows={previewRows} fileName={previewTitle} onClose={() => setPreviewRows(null)} />
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               {SAMPLE_DATASETS.map(ds => (
                 <button
@@ -253,15 +274,12 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
                     <span className="text-muted text-xs shrink-0">{i18n.chat.rowCount(ds.rows)}</span>
                   </div>
                   <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
-                  <a
-                    href={ds.source}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={e => e.stopPropagation()}
-                    className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start"
+                  <span
+                    onClick={e => openPreview(ds, e)}
+                    className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start cursor-pointer"
                   >
-                    ↓ raw data
-                  </a>
+                    {previewLoading === ds.file ? '…' : i18n.upload.columns(ds.cols)}
+                  </span>
                 </button>
               ))}
             </div>
