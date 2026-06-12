@@ -55,7 +55,7 @@ npm unlink @localflow/core && npm install
 
 ## Getting started
 
-> **Prerequisites:** Node.js 18+, an LLM API key — [Gemini](https://aistudio.google.com/apikey) (default), OpenAI, or Anthropic
+> **Prerequisites:** Node.js 20+, an LLM API key — [Gemini](https://aistudio.google.com/apikey) (default), OpenAI, or Anthropic
 
 Run either example:
 
