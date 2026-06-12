@@ -12,15 +12,15 @@ const en = {
   },
   pillars: [
     {
-      title: 'Privacy by design',
+      title: 'Security by design',
       body: 'Raw rows never leave your browser. The AI receives only column names and statistics — your data stays entirely local, always.',
     },
     {
-      title: 'Fixed marginal cost',
+      title: 'Fixed price',
       body: 'Metadata-first means a few hundred tokens per query, regardless of dataset size. No raw data sent, no token waste, fully predictable costs.',
     },
     {
-      title: 'Any LLM, instant deploy',
+      title: 'Easy to deploy',
       body: 'Works with Gemini, GPT-4, Claude, or your own endpoint. Full privacy without a local model, GPU, or on-premise infrastructure.',
     },
   ],
@@ -97,15 +97,15 @@ const fr: I18n = {
   },
   pillars: [
     {
-      title: 'Confidentialité by design',
+      title: 'Sécurité by design',
       body: "Les données brutes ne quittent jamais votre navigateur. L'IA ne reçoit que les noms de colonnes et des statistiques — vos données restent entièrement locales.",
     },
     {
-      title: 'Coût marginal fixe',
+      title: 'Prix fixe',
       body: "L'approche metadata-first génère quelques centaines de tokens par requête, quelle que soit la taille du dataset. Pas de données brutes envoyées, coûts prévisibles.",
     },
     {
-      title: "N'importe quel LLM, déploiement immédiat",
+      title: 'Facile à déployer',
       body: "Compatible avec Gemini, GPT-4, Claude ou votre propre endpoint. Confidentialité totale sans modèle local, GPU ou infrastructure on-premise.",
     },
   ],

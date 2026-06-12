@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import Papa from 'papaparse'
 import readXlsxFile from 'read-excel-file/browser'
 import Prism from 'prismjs'
@@ -137,11 +137,7 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
 }
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
-const PILLARS = [
-  { icon: '🔒', ...i18n.pillars[0] },
-  { icon: '⚡', ...i18n.pillars[1] },
-  { icon: '🌐', ...i18n.pillars[2] },
-]
+const PILLARS = i18n.pillars
 
 const BASE = import.meta.env.BASE_URL
 
@@ -190,13 +186,18 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
       </div>
 
       {/* ── Pillars ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-8 pb-6 w-full max-w-4xl mx-auto">
-        {PILLARS.map(({ icon, title, body }) => (
-          <div key={title} className="bg-card border border-white/10 rounded-2xl p-4 flex flex-col gap-2">
-            <span className="text-3xl">{icon}</span>
-            <h3 className="text-fg text-lg font-semibold">{title}</h3>
-            <p className="text-muted text-base leading-relaxed">{body}</p>
-          </div>
+      <div className="flex flex-wrap items-center justify-center gap-y-2 px-8 pb-6">
+        {PILLARS.map(({ title, body }, i) => (
+          <Fragment key={title}>
+            {i > 0 && <span className="text-white/20 mx-3 select-none">·</span>}
+            <span className="relative group flex items-center gap-1.5">
+              <span className="text-muted text-base">{title}</span>
+              <span className="w-4 h-4 rounded-full border border-white/20 text-muted/50 text-[10px] leading-none flex items-center justify-center cursor-help shrink-0">?</span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-56 bg-surface border border-white/15 rounded-xl px-3 py-2.5 text-sm text-muted leading-relaxed opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-20 shadow-lg">
+                {body}
+              </div>
+            </span>
+          </Fragment>
         ))}
       </div>
 
