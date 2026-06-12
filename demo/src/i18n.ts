@@ -8,7 +8,7 @@ const en = {
     rendering: 'Rendering…',
   },
   hero: {
-    subtitle: 'Drop a spreadsheet and ask questions about your data in plain language — without ever sending it to a server.',
+    subtitle: 'Ask questions about your data in plain language — your data never leaves your device.',
   },
   pillars: [
     {
@@ -99,7 +99,7 @@ const fr: I18n = {
     rendering: 'Rendu en cours…',
   },
   hero: {
-    subtitle: 'Déposez un tableau et posez des questions sur vos données en langage naturel — sans jamais les envoyer sur un serveur.',
+    subtitle: 'Posez des questions sur vos données en langage naturel — vos données restent sur votre appareil.',
   },
   pillars: [
     {

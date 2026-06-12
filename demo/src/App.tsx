@@ -213,7 +213,7 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
         <h1 className="text-fg text-5xl font-bold mb-2">
           LocalFlow <span className="text-primary">AI Demo</span>
         </h1>
-        <p className="text-muted text-xl max-w-xl leading-relaxed">{i18n.hero.subtitle}</p>
+        <p className="text-muted text-base max-w-xl leading-relaxed">{i18n.hero.subtitle}</p>
       </div>
 
       {/* ── Pillars ── */}
