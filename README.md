@@ -2,7 +2,7 @@
 
 Minimal examples showing how to embed a **metadata-first AI assistant** in your own app using [`@localflow/core`](https://github.com/localflow-ai/localflow-core).
 
-> 🚀 Live example (React): [apps.localflow.fr/demo](https://apps.localflow.fr/demo/)
+> 🚀 Live demo: [apps.localflow.fr/demo](https://apps.localflow.fr/demo/) — built from the [`demo/`](./demo/) app in this repository
 
 With metadata-first AI, the LLM receives only schema and column names — never your actual data values. It generates deterministic code that runs locally in a sandboxed iframe on your full dataset.
 
@@ -15,10 +15,13 @@ No server required — the assistant runs entirely in the browser using `LocalPr
 
 ## Examples
 
-| Example | Stack | Directory |
-|---------|-------|-----------|
-| React   | React 18 + Vite + TypeScript | [`react/`](./react/) |
-| Vanilla | Plain JS + Vite | [`vanilla/`](./vanilla/) |
+| Example | Stack | Proxy | Directory |
+|---------|-------|-------|-----------|
+| React   | React 18 + Vite + TypeScript | `LocalProxy` (in-browser, BYOK) | [`react/`](./react/) |
+| Vanilla | Plain JS + Vite | `LocalProxy` (in-browser, BYOK) | [`vanilla/`](./vanilla/) |
+| Demo    | React 18 + Vite + TypeScript | `ProxyClient` (remote proxy, no key needed) | [`demo/`](./demo/) |
+
+The `demo/` app is the source of the [live demo](https://apps.localflow.fr/demo/): it connects to a hosted LocalFlow proxy via a public session, so users can try it without supplying an API key (rate-limited per IP).
 
 ## Developing against a local `localflow-core`
 
