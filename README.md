@@ -89,7 +89,11 @@ import { LocalProxy, LocalAssistant } from '@localflow/core'
 
 // No server needed — LocalProxy runs entirely in the browser
 const proxy = new LocalProxy()
-const assistant = new LocalAssistant({ proxy, llm: { protocol: 'gemini' } })
+const assistant = new LocalAssistant({
+  proxy,
+  llm: { protocol: 'gemini' },
+  resultContainer: '#result',  // analysis results are rendered here, in a sandboxed iframe
+})
 
 // Your Gemini key — stays in the browser, never sent to any third party
 await assistant.setLlmApiKey('AIza...')
@@ -97,12 +101,14 @@ await assistant.setLlmApiKey('AIza...')
 // Load your data
 assistant.addDataset('data', rows) // rows: object[] — one object per record
 
-// Ask a question — the LLM generates JS that runs on your data locally
-const { answer, formula } = await assistant.prompt('Show me the top 10 values by revenue')
-
-// Render the result in a sandboxed iframe
-iframe.srcdoc = assistant.buildSandboxDocument(formula)
+// Ask a question — the LLM generates JS that runs on your data locally,
+// and the result is rendered automatically in #result
+const { answer } = await assistant.prompt('Show me the top 10 values by revenue')
 ```
+
+That's the whole integration — the assistant creates the sandboxed iframe, sets its permissions, and renders each analysis into `resultContainer` for you.
+
+> The example apps in this repository instead use the lower-level `assistant.buildSandboxDocument(formula)` to drive the iframe themselves — useful when you need fine-grained control over loading states or tabbed layouts. See the [`LocalAssistant` API reference](https://github.com/localflow-ai/localflow-core#localassistant-api-reference) for both approaches.
 
 The key idea — **metadata-first AI**: the LLM only ever receives metadata (schema, column names) — never your raw data. It generates executable JavaScript that runs locally in a sandboxed iframe on your full dataset. Your data never leaves the browser.
 
