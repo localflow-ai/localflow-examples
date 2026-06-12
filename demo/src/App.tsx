@@ -21,6 +21,14 @@ interface Message {
   content: string
 }
 
+interface PreviewData {
+  rows: Record<string, unknown>[]
+  fileName: string
+  icon?: string
+  totalRows: number
+  onAnalyze: () => void
+}
+
 // ── File parser ───────────────────────────────────────────────────────────────
 function parseFile(file: File): Promise<Record<string, unknown>[]> {
   return new Promise((resolve, reject) => {
@@ -166,29 +174,16 @@ const SAMPLE_DATASETS = [
   { icon: '📊', rows: 188,  cols: 5,  file: 'gapminder-health-income.csv', ...i18n.samples[3] },
 ]
 
-function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimit: number | null }) {
+function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
+  onFile: (f: File) => void
+  genaiLimit: number | null
+  parseError: string | null
+  onDismissError: () => void
+}) {
   const [dragging, setDragging] = useState(false)
   const [loadingSample, setLoadingSample] = useState<string | null>(null)
   const [view, setView] = useState<'upload' | 'samples'>('upload')
-  const [previewRows, setPreviewRows] = useState<Record<string, unknown>[] | null>(null)
-  const [previewDs, setPreviewDs] = useState<typeof SAMPLE_DATASETS[0] | null>(null)
-  const [previewLoading, setPreviewLoading] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  async function openPreview(ds: typeof SAMPLE_DATASETS[0], e: React.MouseEvent) {
-    e.stopPropagation()
-    if (previewLoading) return
-    setPreviewLoading(ds.file)
-    try {
-      const res = await fetch(`${BASE}datasets/${ds.file}`)
-      const blob = await res.blob()
-      const rows = await parseFile(new File([blob], ds.file, { type: 'text/csv' }))
-      setPreviewDs(ds)
-      setPreviewRows(rows.slice(0, 100))
-    } finally {
-      setPreviewLoading(null)
-    }
-  }
 
   async function loadSample(dataset: typeof SAMPLE_DATASETS[0]) {
     if (loadingSample) return
@@ -266,6 +261,13 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
               <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
             </div>
+            {parseError && (
+              <div className="mt-4 w-full max-w-[520px] flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-sm text-red-300">
+                <span className="shrink-0">⚠</span>
+                <span className="flex-1">{parseError}</span>
+                <button onClick={onDismissError} className="bg-transparent border-none text-red-300/70 cursor-pointer text-base leading-none hover:text-red-300">✕</button>
+              </div>
+            )}
             <button onClick={() => setView('samples')}
               className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
               {i18n.upload.trySample}
@@ -273,16 +275,6 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
           </>
         ) : (
           <>
-            {previewRows && previewDs && (
-              <DataModal
-                rows={previewRows}
-                fileName={previewDs.title}
-                icon={previewDs.icon}
-                totalRows={previewDs.rows}
-                onClose={() => { setPreviewRows(null); setPreviewDs(null) }}
-                onAnalyze={() => { setPreviewRows(null); setPreviewDs(null); loadSample(previewDs) }}
-              />
-            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               {SAMPLE_DATASETS.map(ds => (
                 <button
@@ -296,15 +288,9 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
                       <span className="text-2xl">{loadingSample === ds.file ? '⏳' : ds.icon}</span>
                       <span className="text-fg text-base font-semibold">{ds.title}</span>
                     </div>
-                    <span className="text-muted text-xs shrink-0">{i18n.chat.rowCount(ds.rows)}</span>
+                    <span className="text-muted text-xs shrink-0 tabular-nums">{i18n.upload.statsLabel(ds.rows, ds.cols)}</span>
                   </div>
                   <p className="text-muted text-sm leading-relaxed">{ds.description}</p>
-                  <span
-                    onClick={e => openPreview(ds, e)}
-                    className="text-primary/60 text-xs underline decoration-primary/30 hover:text-primary/90 mt-0.5 self-start cursor-pointer"
-                  >
-                    {previewLoading === ds.file ? '…' : i18n.upload.columns(ds.cols)}
-                  </span>
                 </button>
               ))}
             </div>
@@ -337,6 +323,8 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>('connecting')
   const [mobileView, setMobileView] = useState<'chat' | 'chart'>('chat')
   const [genaiLimit, setGenaiLimit] = useState<number | null>(null)
+  const [previewData, setPreviewData] = useState<PreviewData | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [rowCount, setRowCount] = useState(0)
   const [messages, setMessages] = useState<Message[]>([])
@@ -396,27 +384,16 @@ export default function App() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  async function handleFile(file: File) {
+  async function startAnalysis(parsedRows: Record<string, unknown>[], displayName: string) {
     const assistant = assistantRef.current
     if (!assistant) return
-
-    setPhase('parsing')
-    let rows: Record<string, unknown>[]
-    try {
-      rows = await parseFile(file)
-    } catch {
-      setPhase('idle')
-      return
-    }
-
-    setFileName(file.name)
-    setRowCount(rows.length)
-    setRows(rows)
+    setFileName(displayName)
+    setRowCount(parsedRows.length)
+    setRows(parsedRows)
     setMobileView('chat')
     assistant.clearHistory()
     assistant.clearDatasets?.()
-    assistant.addDataset('data', rows)
-
+    assistant.addDataset('data', parsedRows)
     setPhase('analyzing')
     try {
       const res: AssistantResponse = await assistant.prompt(i18n.chat.initialPrompt)
@@ -427,8 +404,34 @@ export default function App() {
       setPhase('ready')
       return
     }
-
     setPhase('ready')
+  }
+
+  async function handleFile(file: File) {
+    setParseError(null)
+    setPhase('parsing')
+    let parsedRows: Record<string, unknown>[]
+    try {
+      parsedRows = await parseFile(file)
+    } catch {
+      setParseError(i18n.errors.parseFile)
+      setPhase('idle')
+      return
+    }
+    if (parsedRows.length === 0) {
+      setParseError(i18n.errors.emptyFile)
+      setPhase('idle')
+      return
+    }
+    const matched = SAMPLE_DATASETS.find(ds => ds.file === file.name)
+    setPreviewData({
+      rows: parsedRows.slice(0, 100),
+      fileName: matched?.title ?? file.name,
+      icon: matched?.icon,
+      totalRows: parsedRows.length,
+      onAnalyze: () => { setPreviewData(null); startAnalysis(parsedRows, matched?.title ?? file.name) },
+    })
+    setPhase('idle')
   }
 
   function handlePromptError(err: unknown) {
@@ -476,7 +479,21 @@ export default function App() {
   }
 
   if (phase === 'idle') {
-    return <DropZone onFile={handleFile} genaiLimit={genaiLimit} />
+    return (
+      <>
+        {previewData && (
+          <DataModal
+            rows={previewData.rows}
+            fileName={previewData.fileName}
+            icon={previewData.icon}
+            totalRows={previewData.totalRows}
+            onClose={() => setPreviewData(null)}
+            onAnalyze={previewData.onAnalyze}
+          />
+        )}
+        <DropZone onFile={handleFile} genaiLimit={genaiLimit} parseError={parseError} onDismissError={() => setParseError(null)} />
+      </>
+    )
   }
 
   if (phase === 'parsing') {
@@ -501,7 +518,7 @@ export default function App() {
             <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
             <span className="font-semibold text-sm text-fg">LocalFlow</span>
           </div>
-          <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null) }}
+          <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null); setPreviewData(null); setParseError(null) }}
             title={i18n.chat.loadNewFile}
             className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
             ↺
@@ -532,7 +549,7 @@ export default function App() {
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
               <span className="font-semibold text-sm text-fg">LocalFlow</span>
             </div>
-            <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null) }}
+            <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null); setPreviewData(null); setParseError(null) }}
               title={i18n.chat.loadNewFile}
               className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
               ↺

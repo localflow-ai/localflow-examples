@@ -49,6 +49,7 @@ const en = {
     trySample: 'Or try a sample dataset →',
     useOwn: '← Use your own file',
     columns: (n: number) => `${n} columns`,
+    statsLabel: (rows: number, cols: number) => `${rows.toLocaleString()} rows · ${cols} cols`,
   },
   footer: {
     rateLimit: (n: number) => `${n} AI requests/day per IP on this demo`,
@@ -71,6 +72,8 @@ const en = {
     startAnalysis: 'Start analysis',
   },
   errors: {
+    parseFile: 'Could not read this file. Please make sure it is a valid CSV or Excel file.',
+    emptyFile: 'This file appears to be empty.',
     connection: 'Could not connect to the demo server. Please try again later.',
     rateLimit: "You've reached the demo limit. Come back tomorrow, or host your own proxy with your own API key!",
     disabled: 'The demo is temporarily disabled. Please try again later.',
@@ -137,6 +140,7 @@ const fr: I18n = {
     trySample: 'Ou essayez un jeu de données exemple →',
     useOwn: '← Utiliser votre propre fichier',
     columns: (n: number) => `${n} colonnes`,
+    statsLabel: (rows: number, cols: number) => `${rows.toLocaleString()} lignes · ${cols} col.`,
   },
   footer: {
     rateLimit: (n: number) => `${n} requêtes IA par jour et par IP sur cette démo`,
@@ -159,6 +163,8 @@ const fr: I18n = {
     startAnalysis: 'Lancer l\'analyse',
   },
   errors: {
+    parseFile: 'Impossible de lire ce fichier. Vérifiez qu\'il s\'agit d\'un fichier CSV ou Excel valide.',
+    emptyFile: 'Ce fichier semble être vide.',
     connection: 'Impossible de se connecter au serveur de démonstration. Veuillez réessayer plus tard.',
     rateLimit: 'Vous avez atteint la limite de la démo. Revenez demain, ou hébergez votre propre proxy avec votre propre clé API !',
     disabled: 'La démo est temporairement désactivée. Veuillez réessayer plus tard.',
