@@ -95,7 +95,9 @@ const assistant = new LocalAssistant({
   resultContainer: '#result',  // analysis results are rendered here, in a sandboxed iframe
 })
 
-// Your Gemini key — stays in the browser, never sent to any third party
+// Your Gemini key — kept in the browser, sent only to the LLM provider.
+// With LocalProxy it is stored as-is (fine for development); with a real
+// proxy it is encrypted first and the clear key is discarded immediately.
 await assistant.setLlmApiKey('AIza...')
 
 // Load your data
