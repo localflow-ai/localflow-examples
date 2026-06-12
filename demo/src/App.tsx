@@ -495,6 +495,19 @@ export default function App() {
 
       <div className="flex flex-col flex-1 overflow-hidden">
 
+        {/* Mobile header — always visible above the tabs */}
+        <div className="flex md:hidden shrink-0 justify-between items-center px-3.5 py-3 border-b border-white/15 bg-sidebar">
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
+            <span className="font-semibold text-sm text-fg">LocalFlow</span>
+          </div>
+          <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null) }}
+            title={i18n.chat.loadNewFile}
+            className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
+            ↺
+          </button>
+        </div>
+
         {/* Mobile tab bar */}
         <div className="flex md:hidden shrink-0 border-b border-white/15 bg-sidebar">
           <button
@@ -514,7 +527,7 @@ export default function App() {
         <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div className={`flex flex-col border-r border-white/15 bg-sidebar w-full md:w-[336px] ${mobileView === 'chart' ? 'hidden md:flex' : 'flex'}`}>
-          <div className="flex justify-between items-center px-3.5 py-3 border-b border-white/15">
+          <div className="hidden md:flex justify-between items-center px-3.5 py-3 border-b border-white/15">
             <div className="flex items-center gap-2">
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
               <span className="font-semibold text-sm text-fg">LocalFlow</span>
