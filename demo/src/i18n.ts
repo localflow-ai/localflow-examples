@@ -67,6 +67,8 @@ const en = {
     tabChat: 'Chat',
     tabResult: 'Result',
     rowCount: (n: number) => `${n} rows`,
+    rowCountPreview: (shown: number, total: number) => `first ${shown} of ${total} rows`,
+    startAnalysis: 'Start analysis',
   },
   errors: {
     connection: 'Could not connect to the demo server. Please try again later.',
@@ -153,6 +155,8 @@ const fr: I18n = {
     tabChat: 'Chat',
     tabResult: 'Résultat',
     rowCount: (n: number) => `${n} lignes`,
+    rowCountPreview: (shown: number, total: number) => `${shown} premières lignes sur ${total}`,
+    startAnalysis: 'Lancer l\'analyse',
   },
   errors: {
     connection: 'Impossible de se connecter au serveur de démonstration. Veuillez réessayer plus tard.',

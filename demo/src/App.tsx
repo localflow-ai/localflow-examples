@@ -98,13 +98,23 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
 }
 
 // ── Data modal ────────────────────────────────────────────────────────────────
-function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[]; fileName: string; onClose: () => void }) {
+function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
+  rows: Record<string, unknown>[]
+  fileName: string
+  onClose: () => void
+  icon?: string
+  totalRows?: number
+  onAnalyze?: () => void
+}) {
   const columns = rows.length > 0 ? Object.keys(rows[0]) : []
+  const rowLabel = totalRows != null
+    ? i18n.chat.rowCountPreview(rows.length, totalRows)
+    : i18n.chat.rowCount(rows.length)
   return (
     <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-surface border border-white/15 rounded-2xl p-5 w-[min(900px,95vw)] max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-fg text-sm font-semibold">📄 {fileName} — {i18n.chat.rowCount(rows.length)}</span>
+          <span className="text-fg text-sm font-semibold">{icon ?? '📄'} {fileName} — {rowLabel}</span>
           <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer">✕</button>
         </div>
         <div className="overflow-auto flex-1">
@@ -131,6 +141,14 @@ function DataModal({ rows, fileName, onClose }: { rows: Record<string, unknown>[
             </tbody>
           </table>
         </div>
+        {onAnalyze && (
+          <div className="mt-4 flex justify-end border-t border-white/10 pt-4">
+            <button onClick={onAnalyze}
+              className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer">
+              {i18n.chat.startAnalysis}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -153,7 +171,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
   const [loadingSample, setLoadingSample] = useState<string | null>(null)
   const [view, setView] = useState<'upload' | 'samples'>('upload')
   const [previewRows, setPreviewRows] = useState<Record<string, unknown>[] | null>(null)
-  const [previewTitle, setPreviewTitle] = useState('')
+  const [previewDs, setPreviewDs] = useState<typeof SAMPLE_DATASETS[0] | null>(null)
   const [previewLoading, setPreviewLoading] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -165,7 +183,7 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
       const res = await fetch(`${BASE}datasets/${ds.file}`)
       const blob = await res.blob()
       const rows = await parseFile(new File([blob], ds.file, { type: 'text/csv' }))
-      setPreviewTitle(ds.title)
+      setPreviewDs(ds)
       setPreviewRows(rows.slice(0, 100))
     } finally {
       setPreviewLoading(null)
@@ -255,8 +273,15 @@ function DropZone({ onFile, genaiLimit }: { onFile: (f: File) => void; genaiLimi
           </>
         ) : (
           <>
-            {previewRows && (
-              <DataModal rows={previewRows} fileName={previewTitle} onClose={() => setPreviewRows(null)} />
+            {previewRows && previewDs && (
+              <DataModal
+                rows={previewRows}
+                fileName={previewDs.title}
+                icon={previewDs.icon}
+                totalRows={previewDs.rows}
+                onClose={() => { setPreviewRows(null); setPreviewDs(null) }}
+                onAnalyze={() => { setPreviewRows(null); setPreviewDs(null); loadSample(previewDs) }}
+              />
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               {SAMPLE_DATASETS.map(ds => (
