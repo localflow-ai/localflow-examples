@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Papa from 'papaparse'
 import readXlsxFile from 'read-excel-file/browser'
 import Prism from 'prismjs'
@@ -179,8 +179,6 @@ function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
 }
 
 // ── Drop zone ─────────────────────────────────────────────────────────────────
-const PILLARS = i18n.pillars
-
 const BASE = import.meta.env.BASE_URL
 
 const SAMPLE_DATASETS = [
@@ -230,24 +228,8 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
           LocalFlow <span className="text-primary">AI Demo</span>
         </h1>
         <p className="text-muted text-base max-w-xl leading-relaxed">
-          {i18n.hero.subtitle.split(' — ').map((part, i) => i === 0 ? part + ' — ' : <span key={i} className="underline decoration-white/40">{part}</span>)}
+          {i18n.hero.subtitle}
         </p>
-      </div>
-
-      {/* ── Pillars ── */}
-      <div className="flex flex-wrap items-center justify-center gap-y-2 px-8 pb-6">
-        {PILLARS.map(({ title, body }, i) => (
-          <Fragment key={title}>
-            {i > 0 && <span className="text-white/20 mx-3 select-none">·</span>}
-            <span className="relative group flex items-center gap-1.5">
-              <span className="text-muted text-base">{title}</span>
-              <span className="w-4 h-4 rounded-full border border-white/20 text-muted/50 text-[10px] leading-none flex items-center justify-center cursor-help shrink-0">?</span>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-56 bg-surface border border-white/15 rounded-xl px-3 py-2.5 text-sm text-muted leading-relaxed opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-20 shadow-lg">
-                {body}
-              </div>
-            </span>
-          </Fragment>
-        ))}
       </div>
 
       {/* ── Upload / Samples (toggled) ── */}
