@@ -45,6 +45,8 @@ const en = {
   upload: {
     dropMessage: 'Drop a CSV or Excel file here',
     formats: 'Supports .csv, .xlsx, .xls',
+    localNote: 'Your file stays on your device — nothing is uploaded to a server.',
+    safeLocal: 'Safe & local',
     browse: 'Browse files',
     trySample: 'Or try a sample dataset →',
     useOwn: '← Use your own file',
@@ -140,6 +142,8 @@ const fr: I18n = {
   upload: {
     dropMessage: 'Déposez un fichier CSV ou Excel ici',
     formats: 'Formats supportés : .csv, .xlsx, .xls',
+    localNote: 'Votre fichier reste sur votre appareil — rien n\'est envoyé sur un serveur.',
+    safeLocal: 'Sûr & local',
     browse: 'Parcourir',
     trySample: 'Ou essayez un jeu de données exemple →',
     useOwn: '← Utiliser votre propre fichier',

@@ -140,7 +140,7 @@ function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
           </span>
           <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer shrink-0 ml-3">✕</button>
         </div>
-        <p className="text-emerald-400/90 text-xs mb-3 leading-snug">{i18n.privacy.local}</p>
+        <p className="text-muted text-xs mb-3 leading-snug">{i18n.privacy.local}</p>
         <div className="overflow-auto flex-1">
           <table className="w-full border-collapse text-xs font-mono">
             <thead>
@@ -259,10 +259,14 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
-              className={`w-full max-w-[520px] border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
+              className={`w-full max-w-[520px] relative border-[1.5px] border-dashed rounded-2xl px-10 py-7 flex flex-col items-center cursor-pointer transition-all duration-150 ${
                 dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
               }`}
             >
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 text-emerald-400">
+                <LockIcon className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wide">{i18n.upload.safeLocal}</span>
+              </div>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
                 stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
                 strokeWidth="1.5" className="mb-3">
@@ -278,6 +282,7 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
               </button>
               <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }} />
+              <p className="text-muted text-xs font-light text-center mt-4">{i18n.upload.localNote}</p>
             </div>
             {parseError && (
               <div className="mt-4 w-full max-w-[520px] flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-sm text-red-300">
@@ -287,7 +292,7 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
               </div>
             )}
             <button onClick={() => setView('samples')}
-              className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
+              className="mt-4 bg-transparent border-none text-primary text-base font-medium cursor-pointer hover:text-primary/80 underline decoration-primary/40 underline-offset-4">
               {i18n.upload.trySample}
             </button>
           </>
@@ -313,7 +318,7 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
               ))}
             </div>
             <button onClick={() => setView('upload')}
-              className="mt-4 bg-transparent border-none text-muted text-base cursor-pointer hover:text-fg/70 underline decoration-white/20">
+              className="mt-4 bg-transparent border-none text-primary text-base font-medium cursor-pointer hover:text-primary/80 underline decoration-primary/40 underline-offset-4">
               {i18n.upload.useOwn}
             </button>
           </>
@@ -589,7 +594,7 @@ export default function App() {
                 </button>
               )}
             </div>
-            <p className="px-3.5 pt-0.5 pb-2 text-emerald-400/80 text-[11px] leading-snug">{i18n.privacy.chatNote}</p>
+            <p className="px-3.5 pt-0.5 pb-2 text-muted text-[11px] leading-snug">{i18n.privacy.chatNote}</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-2">
