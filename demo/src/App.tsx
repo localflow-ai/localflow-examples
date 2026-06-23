@@ -117,11 +117,10 @@ function LockIcon({ className = '' }: { className?: string }) {
 }
 
 // ── Data modal ────────────────────────────────────────────────────────────────
-function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
+function DataModal({ rows, fileName, onClose, totalRows, onAnalyze }: {
   rows: Record<string, unknown>[]
   fileName: string
   onClose: () => void
-  icon?: string
   totalRows?: number
   onAnalyze?: () => void
 }) {
@@ -134,7 +133,6 @@ function DataModal({ rows, fileName, onClose, icon, totalRows, onAnalyze }: {
       <div className="bg-surface sm:border sm:border-white/15 sm:rounded-2xl p-5 w-full h-full sm:w-[min(900px,95vw)] sm:h-auto sm:max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-fg text-sm font-semibold flex items-center gap-2 min-w-0">
-            <span className="shrink-0">{icon ?? '📄'}</span>
             <LockIcon className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="truncate">{fileName} — {rowLabel}</span>
           </span>
@@ -490,7 +488,6 @@ export default function App() {
           <DataModal
             rows={previewData.rows}
             fileName={previewData.fileName}
-            icon={previewData.icon}
             totalRows={previewData.totalRows}
             onClose={() => setPreviewData(null)}
             onAnalyze={previewData.onAnalyze}
