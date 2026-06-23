@@ -85,6 +85,10 @@ const en = {
     copy: 'Copy',
     copied: '✓ Copied',
   },
+  privacy: {
+    local: 'Processed on your device — only the column names and statistics are sent to the AI, never your data.',
+    chatNote: 'On your device — only metadata goes to the AI',
+  },
 }
 
 type I18n = typeof en
@@ -175,6 +179,10 @@ const fr: I18n = {
     title: 'Formule générée',
     copy: 'Copier',
     copied: '✓ Copié',
+  },
+  privacy: {
+    local: 'Traité sur votre appareil — seuls les noms de colonnes et les statistiques sont envoyés à l\'IA, jamais vos données.',
+    chatNote: 'Sur votre appareil — seules les métadonnées vont à l\'IA',
   },
 }
 
