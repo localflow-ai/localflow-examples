@@ -178,4 +178,8 @@ const fr: I18n = {
   },
 }
 
-export const i18n: I18n = navigator.language.startsWith('fr') ? fr : en
+// `?lang=` (set by the marketing site when launching the demo) wins over the
+// browser language, so the demo matches the language the visitor was reading in.
+const _urlLang = new URLSearchParams(window.location.search).get('lang')
+const _isFr = _urlLang ? _urlLang.toLowerCase().startsWith('fr') : navigator.language.startsWith('fr')
+export const i18n: I18n = _isFr ? fr : en
