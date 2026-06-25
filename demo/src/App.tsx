@@ -77,6 +77,34 @@ function parseFile(file: File): Promise<Record<string, unknown>[]> {
   })
 }
 
+// Reveals text word-by-word (each word fades in turn) for a "being generated"
+// feel that keeps the user reading during the wait. Layout is reserved up front
+// (all words rendered, opacity toggled) so the paragraph never reflows.
+function RevealWords({ text, className = '', perWordMs = 300 }: { text: string; className?: string; perWordMs?: number }) {
+  const words = text.split(' ')
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    setShown(0)
+    let i = 0
+    const id = setInterval(() => {
+      i += 1
+      setShown(i)
+      if (i >= words.length) clearInterval(id)
+    }, perWordMs)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, perWordMs])
+  return (
+    <p className={className}>
+      {words.map((w, i) => (
+        <span key={i} className="transition-opacity duration-500 ease-out" style={{ opacity: i < shown ? 1 : 0 }}>
+          {w}{i < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </p>
+  )
+}
+
 // ── Spinner / wait screen ───────────────────────────────────────────────────
 // A gently pulsing logo over an ambient brand glow, a shimmering gradient label,
 // and a simple dot spinner. Kept deliberately minimal.
@@ -92,7 +120,7 @@ function Spinner({ label, sublabel }: { label: string; sublabel?: string }) {
         style={{ animation: 'pulse-soft 2.2s ease-in-out infinite' }} />
 
       <p className="text-2xl font-bold mb-2 text-center text-gradient-animated">{label}</p>
-      {sublabel && <p className="text-muted text-base text-center max-w-md leading-relaxed mb-7">{sublabel}</p>}
+      {sublabel && <RevealWords text={sublabel} className="text-muted text-base text-center max-w-md leading-relaxed mb-7" />}
 
       <div className="relative flex gap-2">
         {[0, 1, 2].map(i => (
@@ -132,6 +160,19 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
         </pre>
       </div>
     </div>
+  )
+}
+
+// Upload-to-tray arrow — used both in the drop zone and the "load a new file"
+// action, so the two read as the same gesture. Color/size via className.
+function UploadIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+      strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
   )
 }
 
@@ -280,13 +321,7 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
                 <LockIcon className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">{i18n.upload.safeLocal}</span>
               </div>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                stroke={dragging ? 'var(--color-primary)' : 'var(--color-muted)'}
-                strokeWidth="1.5" className="mb-3">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
+              <UploadIcon className={`w-9 h-9 mb-3 ${dragging ? 'text-primary' : 'text-muted'}`} />
               <p className="text-fg text-lg font-medium mb-1 text-center">{i18n.upload.dropMessage}</p>
               <p className="text-muted text-base text-center mb-4">{i18n.upload.formats}</p>
               <button onClick={() => inputRef.current?.click()}
@@ -559,14 +594,15 @@ export default function App() {
 
         {/* Mobile header — always visible above the tabs */}
         <div className="flex md:hidden shrink-0 justify-between items-center px-3.5 py-3 border-b border-white/15 bg-sidebar">
-          <div className="flex items-center gap-2">
+          <a href="https://localflow.fr" target="_blank" rel="noreferrer" title="localflow.fr"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
             <span className="font-semibold text-sm text-fg">LocalFlow</span>
-          </div>
+          </a>
           <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null); setPreviewData(null); setParseError(null) }}
             title={i18n.chat.loadNewFile}
-            className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
-            ↺
+            className="bg-transparent border-none cursor-pointer text-fg/55 p-1 rounded hover:text-fg/80">
+            <UploadIcon className="w-[18px] h-[18px]" />
           </button>
         </div>
 
@@ -590,14 +626,15 @@ export default function App() {
         {/* Sidebar */}
         <div className={`flex flex-col border-r border-white/15 bg-sidebar w-full md:w-[336px] ${mobileView === 'chart' ? 'hidden md:flex' : 'flex'}`}>
           <div className="hidden md:flex justify-between items-center px-3.5 py-3 border-b border-white/15">
-            <div className="flex items-center gap-2">
+            <a href="https://localflow.fr" target="_blank" rel="noreferrer" title="localflow.fr"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src={logo} alt="LocalFlow" className="w-6 h-6 rounded-[5px]" />
               <span className="font-semibold text-sm text-fg">LocalFlow</span>
-            </div>
+            </a>
             <button onClick={() => { setPhase('idle'); setMessages([]); setSrcdoc(null); setPreviewData(null); setParseError(null) }}
               title={i18n.chat.loadNewFile}
-              className="bg-transparent border-none cursor-pointer text-xl text-fg/55 p-0.5 rounded hover:text-fg/80">
-              ↺
+              className="bg-transparent border-none cursor-pointer text-fg/55 p-1 rounded hover:text-fg/80">
+              <UploadIcon className="w-[18px] h-[18px]" />
             </button>
           </div>
 
