@@ -3,11 +3,14 @@ const en = {
     connecting: 'Connecting to demo server…',
     parsing: 'Loading data in the browser…',
     parsingSubtitle: 'Your file is being read locally. Nothing is sent anywhere yet.',
-    analyzing: 'Analyzing with metadata-first AI…',
-    analyzingSubtitle: 'Only column names and statistics are shared with the AI — your actual data never leaves the browser.',
+    analyzing: 'Analyzing…',
+    analyzingSubtitle: 'Local-first data analysis. Only column names and statistics are shared with the AI — your actual data never leaves the browser and you keep the ownership.',
     rendering: 'Rendering…',
   },
   hero: {
+    eyebrow: 'LocalFlow Live Demo',
+    title: 'Local-first data analysis ',
+    titleHighlight: 'with AI',
     subtitle: 'Ask questions about your data in plain language.',
   },
   samples: [
@@ -32,7 +35,7 @@ const en = {
     dropMessage: 'Drop a CSV or Excel file here',
     formats: 'Supports .csv, .xlsx, .xls',
     localNote: 'Your file stays on your device — nothing is uploaded to a server.',
-    safeLocal: 'Safe & local',
+    safeLocal: 'Safe & local (local-first)',
     browse: 'Browse files',
     trySample: 'Or try a sample dataset →',
     useOwn: '← Use your own file',
@@ -48,7 +51,6 @@ const en = {
     initialPrompt: 'Visualise this data comprehensively and tell me what kinds of analyses would be most insightful.',
     empty: 'Ask a question about your data.',
     placeholder: 'Ask something about your data…',
-    disclaimer: 'Your data stays local — only column names and statistics are shared with the AI.',
     loadNewFile: 'Load a new file',
     viewRawData: 'View raw data',
     inspectFormula: 'Inspect generated formula',
@@ -57,7 +59,7 @@ const en = {
     tabResult: 'Result',
     rowCount: (n: number) => `${n} rows`,
     rowCountPreview: (shown: number, total: number) => `first ${shown} of ${total} rows`,
-    startAnalysis: 'Start analysis',
+    startAnalysis: 'Start local-first analysis',
   },
   errors: {
     parseFile: 'Could not read this file. Please make sure it is a valid CSV or Excel file.',
@@ -74,8 +76,8 @@ const en = {
     copied: '✓ Copied',
   },
   privacy: {
-    local: 'Processed on your device — only the column names and statistics are sent to the AI, never your data.',
-    chatNote: 'On your device — only metadata goes to the AI',
+    local: 'Local-first processing on your device.',
+    chatNote: 'On your device (local-first data analysis)',
   },
 }
 
@@ -86,11 +88,14 @@ const fr: I18n = {
     connecting: 'Connexion au serveur de démonstration…',
     parsing: 'Chargement des données dans le navigateur…',
     parsingSubtitle: "Votre fichier est lu localement. Rien n'est encore envoyé nulle part.",
-    analyzing: "Analyse avec l'IA metadata-first…",
-    analyzingSubtitle: "Seuls les noms de colonnes et des statistiques sont partagés avec l'IA — vos données réelles ne quittent jamais le navigateur.",
+    analyzing: 'Analyse…',
+    analyzingSubtitle: "Analyse de données local-first. Seuls les noms de colonnes et des statistiques sont partagés avec l'IA — vos données réelles ne quittent jamais le navigateur et vous en gardez la propriété.",
     rendering: 'Rendu en cours…',
   },
   hero: {
+    eyebrow: 'LocalFlow Démo en direct',
+    title: 'Analyse de données local-first ',
+    titleHighlight: 'avec l\'IA',
     subtitle: 'Posez des questions sur vos données en langage naturel.',
   },
   samples: [
@@ -115,7 +120,7 @@ const fr: I18n = {
     dropMessage: 'Déposez un fichier CSV ou Excel ici',
     formats: 'Formats supportés : .csv, .xlsx, .xls',
     localNote: 'Votre fichier reste sur votre appareil — rien n\'est envoyé sur un serveur.',
-    safeLocal: 'Sûr & local',
+    safeLocal: 'Sûr & local (local-first)',
     browse: 'Parcourir',
     trySample: 'Ou essayez un jeu de données exemple →',
     useOwn: '← Utiliser votre propre fichier',
@@ -131,7 +136,6 @@ const fr: I18n = {
     initialPrompt: 'Visualise ces données de façon complète et dis-moi quelles analyses seraient les plus pertinentes.',
     empty: 'Posez une question sur vos données.',
     placeholder: 'Posez une question sur vos données…',
-    disclaimer: "Vos données restent locales — seuls les noms de colonnes et les statistiques sont partagés avec l'IA.",
     loadNewFile: 'Charger un nouveau fichier',
     viewRawData: 'Voir les données brutes',
     inspectFormula: 'Inspecter la formule générée',
@@ -140,7 +144,7 @@ const fr: I18n = {
     tabResult: 'Résultat',
     rowCount: (n: number) => `${n} lignes`,
     rowCountPreview: (shown: number, total: number) => `${shown} premières lignes sur ${total}`,
-    startAnalysis: 'Lancer l\'analyse',
+    startAnalysis: 'Lancer l\'analyse local-first',
   },
   errors: {
     parseFile: 'Impossible de lire ce fichier. Vérifiez qu\'il s\'agit d\'un fichier CSV ou Excel valide.',
@@ -157,8 +161,8 @@ const fr: I18n = {
     copied: '✓ Copié',
   },
   privacy: {
-    local: 'Traité sur votre appareil — seuls les noms de colonnes et les statistiques sont envoyés à l\'IA, jamais vos données.',
-    chatNote: 'Sur votre appareil — seules les métadonnées vont à l\'IA',
+    local: 'Traitement local-first sur votre appareil.',
+    chatNote: 'Sur votre appareil (analyse de données local-first)',
   },
 }
 

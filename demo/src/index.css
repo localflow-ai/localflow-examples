@@ -1,21 +1,62 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: oklch(0.68 0.14 175);
-  --color-app-bg: oklch(0.17 0 0);
-  --color-sidebar: oklch(0.165 0 0);
-  --color-card: oklch(0.28 0 0);
-  --color-surface: oklch(0.13 0 0);
-  --color-code-bg: oklch(0.10 0 0);
+  /* Matches the marketing site's hero showcase: neutral text/mid-grays with only
+     the dark surfaces subtly blue-tinted (site gray-700→950), tech-blue accent. */
+  --color-primary: hsl(217 91% 70%);
+  /* Teal end of the brand gradient (site dark `--secondary`) — used for the
+     blue→teal text/button gradients, matching the website. */
+  --color-secondary: hsl(189 85% 65%);
+  /* "Safe & local" cue — the LocalFlow logo's center teal, distinct from the
+     blue primary so the privacy/lock indicators stand out. */
+  --color-safe: #15dfb9;
+  --color-app-bg: #141923;
+  --color-sidebar: #10141d;
+  --color-card: #2c3340;
+  --color-surface: #0d111a;
+  --color-code-bg: #0a0d14;
   --color-fg: oklch(0.96 0 0);
   --color-muted: oklch(0.63 0 0);
-  --color-user-bubble: oklch(0.35 0.08 200);
+  --color-user-bubble: #2f3b52;
+}
+
+@layer utilities {
+  /* Brand blue→teal gradient, matching the marketing site (hero "with AI" + the
+     "Get started" button). */
+  .text-gradient {
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* background-clip: text clips descenders (g, y, p) without a little headroom */
+    padding-bottom: 0.12em;
+  }
+  .bg-gradient-brand {
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+  }
+  /* Flowing multi-stop brand gradient for animated labels (wait screens). */
+  .text-gradient-animated {
+    background-image: linear-gradient(90deg,
+      var(--color-primary), var(--color-secondary), var(--color-safe),
+      var(--color-secondary), var(--color-primary));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-bottom: 0.12em;
+    animation: text-shimmer 3s linear infinite;
+  }
 }
 
 @keyframes bounce {
   0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
   40%           { transform: translateY(-8px); opacity: 1; }
 }
+
+/* "Analyzing" / wait-screen animations */
+@keyframes pulse-soft  { 0%, 100% { transform: scale(1);    opacity: 1;    }
+                         50%      { transform: scale(1.06); opacity: 0.9;  } }
+@keyframes text-shimmer { to { background-position: 200% center; } }
 
 /* Prism.js dark token theme */
 .token.comment, .token.prolog, .token.doctype, .token.cdata { color: oklch(0.55 0 0); font-style: italic; }
@@ -30,8 +71,8 @@
 @layer base {
   body {
     font-family: system-ui, -apple-system, sans-serif;
-    background-color: oklch(0.17 0 0);
-    color: oklch(0.96 0 0);
+    background-color: var(--color-app-bg);
+    color: var(--color-fg);
     height: 100dvh;
     display: flex;
     flex-direction: column;

@@ -10,7 +10,27 @@ import logo from './logo.webp'
 import { i18n } from './i18n'
 
 const DEMO_PROXY_URL = import.meta.env.VITE_PROXY_URL ?? 'https://backoffice.daquota.io/demo'
+// Local dev proxy (e.g. `localflow-proxy` running standalone). When the demo is
+// served from localhost we prefer this one if it's reachable, falling back to the
+// public demo proxy otherwise; in prod we always use the demo proxy.
+const DEV_PROXY_URL  = import.meta.env.VITE_DEV_PROXY_URL ?? 'http://localhost:3000'
 const DEMO_MODEL_ID  = import.meta.env.VITE_MODEL_ID  ?? 'gemini-flash'
+const IS_LOCALHOST   = typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+
+// Shared sandbox theme for assistant-rendered UIs — mirrors the marketing site's
+// hero showcase: neutral mid/light grays, only the darks subtly blue-tinted.
+const SANDBOX_THEME = {
+  extend: {
+    colors: {
+      primary: '#3b82f6',
+      gray: {
+        50: '#fafafa', 100: '#f2f2f2', 200: '#e0e0e0', 300: '#c0c0c0', 400: '#8a8a8a',
+        500: '#6a6a6a', 600: '#4a4a4a', 700: '#2c3340', 800: '#1f2530', 900: '#141923', 950: '#0d111a',
+      },
+    },
+  },
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Phase = 'connecting' | 'idle' | 'parsing' | 'analyzing' | 'ready'
@@ -57,19 +77,29 @@ function parseFile(file: File): Promise<Record<string, unknown>[]> {
   })
 }
 
-// ── Spinner ───────────────────────────────────────────────────────────────────
+// ── Spinner / wait screen ───────────────────────────────────────────────────
+// A gently pulsing logo over an ambient brand glow, a shimmering gradient label,
+// and a simple dot spinner. Kept deliberately minimal.
 function Spinner({ label, sublabel }: { label: string; sublabel?: string }) {
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-app-bg p-6">
-      <img src={logo} alt="LocalFlow" className="w-14 h-14 mb-8 rounded-xl" />
-      <div className="flex gap-2 mb-6">
+    <div className="min-h-dvh flex flex-col items-center justify-center bg-app-bg p-6 relative overflow-hidden">
+      {/* ambient brand glow */}
+      <div aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full blur-3xl opacity-25"
+        style={{ background: 'radial-gradient(circle, var(--color-primary), transparent 65%)' }} />
+
+      <img src={logo} alt="LocalFlow" className="relative w-14 h-14 mb-8 rounded-xl"
+        style={{ animation: 'pulse-soft 2.2s ease-in-out infinite' }} />
+
+      <p className="text-2xl font-bold mb-2 text-center text-gradient-animated">{label}</p>
+      {sublabel && <p className="text-muted text-base text-center max-w-md leading-relaxed mb-7">{sublabel}</p>}
+
+      <div className="relative flex gap-2">
         {[0, 1, 2].map(i => (
           <span key={i} className="w-2.5 h-2.5 rounded-full bg-primary inline-block"
             style={{ animation: 'bounce 1.2s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
-      <p className="text-fg text-xl font-semibold mb-2 text-center">{label}</p>
-      {sublabel && <p className="text-muted text-base text-center max-w-xs leading-relaxed">{sublabel}</p>}
     </div>
   )
 }
@@ -105,7 +135,7 @@ function FormulaModal({ formula, onClose }: { formula: string; onClose: () => vo
   )
 }
 
-// Closed padlock — the "stays on your device" privacy cue (emerald via className).
+// Closed padlock — the "stays on your device" privacy cue (color via className).
 function LockIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
@@ -133,7 +163,7 @@ function DataModal({ rows, fileName, onClose, totalRows, onAnalyze }: {
       <div className="bg-surface sm:border sm:border-white/15 sm:rounded-2xl p-5 w-full h-full sm:w-[min(900px,95vw)] sm:h-auto sm:max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-fg text-sm font-semibold flex items-center gap-2 min-w-0">
-            <LockIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+            <LockIcon className="w-4 h-4 text-safe shrink-0" />
             <span className="truncate">{fileName} — {rowLabel}</span>
           </span>
           <button onClick={onClose} className="bg-transparent text-fg/70 border-none text-lg cursor-pointer shrink-0 ml-3">✕</button>
@@ -166,7 +196,7 @@ function DataModal({ rows, fileName, onClose, totalRows, onAnalyze }: {
         {onAnalyze && (
           <div className="mt-4 flex justify-end border-t border-white/10 pt-4">
             <button onClick={onAnalyze}
-              className="bg-primary text-[oklch(0.10_0_0)] border-none rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer">
+              className="bg-gradient-brand text-white border-none rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer shadow-[0_0_24px_hsl(217_91%_70%/0.45)] hover:shadow-[0_0_36px_hsl(217_91%_70%/0.6)] hover:opacity-90 transition-all">
               {i18n.chat.startAnalysis}
             </button>
           </div>
@@ -222,8 +252,11 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
       {/* ── Hero ── */}
       <div className="flex flex-col items-center pt-8 pb-6 px-8 text-center">
         <img src={logo} alt="LocalFlow" className="w-16 h-16 rounded-2xl mb-4" />
-        <h1 className="text-fg text-5xl font-bold mb-2">
-          LocalFlow <span className="text-primary">AI Demo</span>
+        <span className="text-primary/80 text-lg font-semibold uppercase tracking-[0.15em] mb-2">
+          {i18n.hero.eyebrow}
+        </span>
+        <h1 className="text-fg text-3xl font-bold mb-2">
+          {i18n.hero.title}<span className="text-gradient">{i18n.hero.titleHighlight}</span>
         </h1>
         <p className="text-muted text-base max-w-xl leading-relaxed">
           {i18n.hero.subtitle}
@@ -243,12 +276,12 @@ function DropZone({ onFile, genaiLimit, parseError, onDismissError }: {
                 dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-white/20 bg-white/[0.03]'
               }`}
             >
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 text-emerald-400">
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 text-safe">
                 <LockIcon className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">{i18n.upload.safeLocal}</span>
               </div>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                stroke={dragging ? 'oklch(0.68 0.14 175)' : 'oklch(0.63 0 0)'}
+                stroke={dragging ? 'var(--color-primary)' : 'var(--color-muted)'}
                 strokeWidth="1.5" className="mb-3">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
@@ -343,44 +376,54 @@ export default function App() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetch(`${DEMO_PROXY_URL}/public/config`)
-      .then(r => r.json())
-      .then(cfg => setGenaiLimit(cfg.publicSessions?.rateLimits?.genaiPerIpPerDay ?? null))
-      .catch(() => {})
+    let cancelled = false
 
-    const proxy = new ProxyClient(DEMO_PROXY_URL)
-    proxy.connect('public').then(() => {
-      const assistant = new LocalAssistant({
-        proxy,
-        llm: { modelId: DEMO_MODEL_ID },
-        darkMode: true,
-        sandboxTheme: {
-          extend: {
-            colors: {
-              primary: '#14b8a6',
-              gray: {
-                50:  '#fafafa',
-                100: '#f2f2f2',
-                200: '#e0e0e0',
-                300: '#c0c0c0',
-                400: '#8a8a8a',
-                500: '#6a6a6a',
-                600: '#4a4a4a',
-                700: '#333333',
-                800: '#292929',
-                900: '#111111',
-                950: '#0a0a0a',
-              },
-            },
-          },
-        },
-      })
-      assistantRef.current = assistant
-      setPhase('idle')
-    }).catch(() => {
+    // Quick reachability probe: fetch a proxy's public config, returning it or
+    // null. Short timeout so a down local proxy doesn't stall startup.
+    async function probe(url: string, timeoutMs = 1500): Promise<any | null> {
+      try {
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs)
+        const r = await fetch(`${url}/public/config`, { signal: ctrl.signal })
+        clearTimeout(timer)
+        return r.ok ? await r.json() : null
+      } catch {
+        return null
+      }
+    }
+
+    async function connect() {
+      // On localhost, try the dev proxy first, then fall back to the demo proxy.
+      // In prod, only the demo proxy.
+      const candidates = IS_LOCALHOST ? [DEV_PROXY_URL, DEMO_PROXY_URL] : [DEMO_PROXY_URL]
+      for (const url of candidates) {
+        const cfg = await probe(url)
+        if (cancelled) return
+        if (!cfg) continue
+        try {
+          const proxy = new ProxyClient(url)
+          await proxy.connect('public')
+          if (cancelled) return
+          assistantRef.current = new LocalAssistant({
+            proxy,
+            llm: { modelId: DEMO_MODEL_ID },
+            darkMode: true,
+            sandboxTheme: SANDBOX_THEME,
+          })
+          setGenaiLimit(cfg.publicSessions?.rateLimits?.genaiPerIpPerDay ?? null)
+          setPhase('idle')
+          return
+        } catch {
+          // unreachable/handshake failed — try the next candidate
+        }
+      }
+      if (cancelled) return
       setMessages([{ id: 'conn-err', role: 'assistant', content: i18n.errors.connection }])
       setPhase('idle')
-    })
+    }
+
+    connect()
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -560,7 +603,7 @@ export default function App() {
 
           <div className="border-b border-white/15 bg-white/[0.025]">
             <div className="flex items-center px-3.5 pt-2 gap-1.5">
-              <LockIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+              <LockIcon className="w-4 h-4 text-safe shrink-0" />
               <button onClick={() => setShowData(true)} title={i18n.chat.viewRawData}
                 className="flex-1 bg-transparent border-none p-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap text-sm text-primary text-left underline decoration-primary/40">
                 {fileName}
@@ -631,7 +674,6 @@ export default function App() {
                 ➤
               </button>
             </div>
-            <p className="mt-1.5 text-center text-[11px] text-muted/70">{i18n.chat.disclaimer}</p>
           </div>
         </div>
 
