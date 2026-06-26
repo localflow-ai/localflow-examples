@@ -8,6 +8,7 @@ import { LocalAssistant, ProxyClient } from '@localflow/core'
 import type { AssistantResponse } from '@localflow/core'
 import logo from './logo.webp'
 import { i18n } from './i18n'
+import { readSeed } from './lib/seed'
 
 const DEMO_PROXY_URL = import.meta.env.VITE_PROXY_URL ?? 'https://backoffice.daquota.io/demo'
 // Local dev proxy (e.g. `localflow-proxy` running standalone). When the demo is
@@ -439,14 +440,34 @@ export default function App() {
           const proxy = new ProxyClient(url)
           await proxy.connect('public')
           if (cancelled) return
-          assistantRef.current = new LocalAssistant({
+          const assistant = new LocalAssistant({
             proxy,
             llm: { modelId: DEMO_MODEL_ID },
             darkMode: true,
             sandboxTheme: SANDBOX_THEME,
           })
+          assistantRef.current = assistant
           setGenaiLimit(cfg.publicSessions?.rateLimits?.genaiPerIpPerDay ?? null)
-          setPhase('idle')
+          // Deep-link from the marketing site's "Chat" button: pre-load the
+          // example's data + pre-generated analysis as a first chat turn (no LLM
+          // call), then let the user continue chatting normally.
+          const seed = readSeed()
+          if (seed) {
+            assistant.clearHistory()
+            assistant.addDataset('data', seed.rows)
+            setFileName(seed.name)
+            setRowCount(seed.rows.length)
+            setRows(seed.rows)
+            setMessages([
+              { id: 'seed-u', role: 'user', content: seed.question },
+              { id: 'seed-a', role: 'assistant', content: seed.answer || i18n.chat.seededAnswer },
+            ])
+            setIframeLoading(true)
+            setSrcdoc(assistant.buildSandboxDocument(seed.formula))
+            setFormula(seed.formula)
+            setMobileView('chart')
+          }
+          setPhase(seed ? 'ready' : 'idle')
           return
         } catch {
           // unreachable/handshake failed — try the next candidate

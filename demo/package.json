@@ -1,7 +1,9 @@
 {
   "name": "localflow-example-demo",
   "version": "0.1.0",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,6 +15,7 @@
     "@localflow/core": "^0.2.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/prismjs": "^1.26.6",
+    "lz-string": "^1.5.0",
     "marked": "^18.0.4",
     "papaparse": "^5.4.1",
     "prismjs": "^1.30.0",

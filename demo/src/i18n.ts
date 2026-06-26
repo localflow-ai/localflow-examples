@@ -60,6 +60,7 @@ const en = {
     rowCount: (n: number) => `${n} rows`,
     rowCountPreview: (shown: number, total: number) => `first ${shown} of ${total} rows`,
     startAnalysis: 'Start local-first analysis',
+    seededAnswer: "Here's the analysis, generated locally on your data. Ask a follow-up to refine or explore it.",
   },
   errors: {
     parseFile: 'Could not read this file. Please make sure it is a valid CSV or Excel file.',
@@ -145,6 +146,7 @@ const fr: I18n = {
     rowCount: (n: number) => `${n} lignes`,
     rowCountPreview: (shown: number, total: number) => `${shown} premières lignes sur ${total}`,
     startAnalysis: 'Lancer l\'analyse local-first',
+    seededAnswer: "Voici l'analyse, générée localement sur vos données. Posez une question pour l'affiner ou l'explorer.",
   },
   errors: {
     parseFile: 'Impossible de lire ce fichier. Vérifiez qu\'il s\'agit d\'un fichier CSV ou Excel valide.',
