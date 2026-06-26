@@ -540,7 +540,15 @@ export default function App() {
     const msg = (err as Error).message ?? ''
     let content: string
     if (msg.includes('429')) {
-      content = i18n.errors.rateLimit
+      // The proxy embeds an ISO reset instant in the message; render it in the
+      // user's local time (the instant is timezone-agnostic, the browser localizes).
+      const m = msg.match(/(\d{4}-\d{2}-\d{2}T[0-9:.]+Z)/)
+      let when: string | null = null
+      if (m) {
+        const d = new Date(m[1])
+        if (!isNaN(d.getTime())) when = d.toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })
+      }
+      content = i18n.errors.rateLimit(when)
     } else if (msg.includes('403') && msg.toLowerCase().includes('disabled')) {
       content = i18n.errors.disabled
     } else if (msg.includes('500') || msg.includes('suspended') || msg.includes('Permission denied')) {

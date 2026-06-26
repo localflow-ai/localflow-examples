@@ -66,7 +66,10 @@ const en = {
     parseFile: 'Could not read this file. Please make sure it is a valid CSV or Excel file.',
     emptyFile: 'This file appears to be empty.',
     connection: 'Could not connect to the demo server. Please try again later.',
-    rateLimit: "You've reached the demo limit. Come back tomorrow, or host your own proxy with your own API key!",
+    rateLimit: (when: string | null) =>
+      when
+        ? `You've reached the demo limit. Come back after ${when} — or host your own proxy with your own API key.`
+        : "You've reached the demo limit. Come back later — or host your own proxy with your own API key.",
     disabled: 'The demo is temporarily disabled. Please try again later.',
     unavailable: 'The demo AI service is temporarily unavailable. Please try again later.',
     generic: (msg: string) => `Error: ${msg}`,
@@ -152,7 +155,10 @@ const fr: I18n = {
     parseFile: 'Impossible de lire ce fichier. Vérifiez qu\'il s\'agit d\'un fichier CSV ou Excel valide.',
     emptyFile: 'Ce fichier semble être vide.',
     connection: 'Impossible de se connecter au serveur de démonstration. Veuillez réessayer plus tard.',
-    rateLimit: 'Vous avez atteint la limite de la démo. Revenez demain, ou hébergez votre propre proxy avec votre propre clé API !',
+    rateLimit: (when: string | null) =>
+      when
+        ? `Vous avez atteint la limite de la démo. Revenez après ${when} — ou hébergez votre propre proxy avec votre propre clé API.`
+        : 'Vous avez atteint la limite de la démo. Revenez plus tard — ou hébergez votre propre proxy avec votre propre clé API.',
     disabled: 'La démo est temporairement désactivée. Veuillez réessayer plus tard.',
     unavailable: 'Le service IA de la démo est temporairement indisponible. Veuillez réessayer plus tard.',
     generic: (msg: string) => `Erreur : ${msg}`,
